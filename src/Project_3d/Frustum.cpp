@@ -181,7 +181,7 @@ bool mydx::Frustum::InspectOBBAndPlane(const BoundingBox& box)
                         + plane.z * ::XMVectorGetZ(boxData.Center) 
                         + plane.w; // plane.w is between plane and origin distance
         
-        if ( planeToCenter <= -distance)
+        if ( planeToCenter < -distance)
         {
             return false;
         }

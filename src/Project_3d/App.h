@@ -17,6 +17,7 @@
 #include "Box.h"
 #include "Camera.h"
 #include "BoundingBox.h"
+#include "Map.h"
 
 
 
@@ -82,7 +83,8 @@ public:
 	Microsoft::WRL::ComPtr<ID3D11InputLayout> mInputLayout;
 	Microsoft::WRL::ComPtr<ID3D11VertexShader> mVertexShader;
 	Microsoft::WRL::ComPtr<ID3D11PixelShader> mPixelShader;
-	Microsoft::WRL::ComPtr<ID3D11RasterizerState> mRasterizerState;
+	Microsoft::WRL::ComPtr<ID3D11RasterizerState> mRasterizerStateWireFrame;
+	Microsoft::WRL::ComPtr<ID3D11RasterizerState> mRasterizerStateSolid;
 	std::unique_ptr<VertexBuffer> mVertexBufferClass;
 	std::unique_ptr<IndexBuffer> mIndexBufferClass;
 
@@ -100,6 +102,7 @@ public:
 	std::unique_ptr<Camera> mCamera;
 	std::unique_ptr<Camera> mTopViewCamera;
 	std::unique_ptr<mydx::BoundingBox> mBoundingBox;
+	std::unique_ptr<mydx::Map> mMap;
 
 	Microsoft::WRL::ComPtr<ID3D11Texture2D> mTexture1;
 	Microsoft::WRL::ComPtr<ID3D11Texture2D> mTexture2;

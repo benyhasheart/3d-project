@@ -185,7 +185,12 @@ int App::Excute()
 	 //RSdesc.FillMode = D3D11_FILL_WIREFRAME;
 	 RSdesc.CullMode = D3D11_CULL_BACK;
 	 //RSdesc.ScissorEnable = TRUE; // 지정한 영역 외부의 모든 픽셀을 제외 (OM으로 보낼 픽셀 지정)
-	 mWindow.GetGFX().GetDevice()->CreateRasterizerState(&RSdesc, mRasterizerState.GetAddressOf());
+	 mWindow.GetGFX().GetDevice()->CreateRasterizerState(&RSdesc, mRasterizerStateSolid.GetAddressOf());
+
+	 RSdesc.FillMode = D3D11_FILL_WIREFRAME;
+	 mWindow.GetGFX().GetDevice()->CreateRasterizerState(&RSdesc, mRasterizerStateWireFrame.GetAddressOf());
+
+	 mWindow.GetGFX().GetDeviceContext()->RSSetState(mRasterizerStateSolid.Get());
 
 #pragma region LoadTextureFromFile
 
@@ -358,13 +363,13 @@ int App::Excute()
 	 //mCamera = std::make_unique<ModelViewCamera>();
 	 mCamera = std::make_unique<FirstPersonViewCamera>();
 	 mCamera->CreateViewMatrix(
-		 ::XMVectorSet(0.0f, 0.0f, -5.0f, 0.0f),
+		 ::XMVectorSet(0.0f, 1.0f, -5.0f, 0.0f),
 		 ::XMVectorSet(0.0f, 0.0f, 0.0f, 0.0f),
 		 ::XMVectorSet(0.0f, 1.0f, 0.0f, 0.0f));
 
 	 mWindow.GetGFX().SetViewMatrix(mCamera.get()->GetViewMatrix());
 	 float aspect = static_cast<float>(mWindow.windowWidth) / static_cast<float>(mWindow.windowHeight);
-	 mWindow.GetGFX().SetProjectionMatrix(DirectX::XMMatrixPerspectiveFovLH(DirectX::XM_PIDIV2, aspect, 1.0f, 100.0f));
+	 mWindow.GetGFX().SetProjectionMatrix(DirectX::XMMatrixPerspectiveFovLH(DirectX::XM_PIDIV2, aspect, 1.0f, 1000.0f));
 	 mCamera.get()->SetProjectionMatrix(mWindow.GetGFX().GetProjectionMatrix());
 
 	 mCamera.get()->CreateFrustum(mWindow.GetGFX());
@@ -384,8 +389,8 @@ int App::Excute()
 	 mDepthStencilDesc = {};
 
 	 mDepthStencilDesc.DepthEnable = TRUE;
-	 mDepthStencilDesc.StencilWriteMask = D3D11_DEPTH_WRITE_MASK_ALL;
-	 mDepthStencilDesc.DepthFunc = D3D11_COMPARISON_ALWAYS;
+	 mDepthStencilDesc.DepthWriteMask = D3D11_DEPTH_WRITE_MASK_ALL;
+	 mDepthStencilDesc.DepthFunc = D3D11_COMPARISON_LESS_EQUAL;
 	 mDepthStencilDesc.StencilEnable = TRUE;
 	 mDepthStencilDesc.StencilReadMask = D3D11_DEFAULT_STENCIL_READ_MASK;
 	 mDepthStencilDesc.StencilWriteMask = D3D11_DEFAULT_STENCIL_WRITE_MASK;
@@ -418,7 +423,7 @@ int App::Excute()
 
 	 mWindow.GetGFX().GetDevice()->CreateDepthStencilState(&mDepthStencilDesc, mStencilState2.GetAddressOf());
 
-	 mWindow.GetGFX().GetDeviceContext()->OMSetDepthStencilState(mStencilState2.Get(), 1u);
+	 //mWindow.GetGFX().GetDeviceContext()->OMSetDepthStencilState(mStencilState2.Get(), 1u);
 
 #pragma endregion
 
@@ -440,6 +445,13 @@ int App::Excute()
 				::XMVECTOR({ ddist(rng),ddist(rng) ,ddist(rng) }));
 		 mBoxes.emplace_back(box);
 	 }
+
+	 mydx::MapDesc mapDesc = {};
+	 mapDesc.ColCellCount = 16u;
+	 mapDesc.RowCellCount = 16u;
+	 mapDesc.CellDistance = 1.0f;
+
+	 mMap = std::make_unique<mydx::Map>(mWindow.GetGFX(), mapDesc, nullptr);
 
 	 return false;
 }
@@ -499,7 +511,7 @@ int App::Excute()
 	 ////mWindow.GetGFX().GetDeviceContext()->GSSetShader( nullptr, nullptr, 0u);
 	 ////mGeometryShaderClass->Bind(mWindow.GetGFX());
 
-	 mWindow.GetGFX().GetDeviceContext()->RSSetState(mRasterizerState.Get());
+	
 
 	 ///*D3D11_RECT rects[1];
 	 //rects[0].left = 0;
@@ -556,7 +568,7 @@ int App::Excute()
 
 	 // --
 	
-	 mWindow.GetGFX().GetDeviceContext()->OMSetDepthStencilState(mStencilState1.Get(), 1u);
+	
 	 //mWindow.GetGFX().GetDeviceContext()->RSSetViewports(1, &mViewPort[0]);
 	 const auto frameTime = mTimer.Mark();
 	 static float t = 0;
@@ -635,7 +647,7 @@ int App::Excute()
 		 box->Update(mWindow.GetGFX());
 	 }
 
-
+	 mMap->Update(mWindow.GetGFX());
 	 //mBoxShape->SetRotation(oldRotationVector);
 	 //mBoxShape->SetRotation(::XMVectorSet(0.0f, t, 0.0f, 0.0f));
 
@@ -651,6 +663,7 @@ int App::Excute()
  bool App::Render()
 {
 	 mWindow.GetGFX().ClearBuffer(1.0f,1.0f,1.0f,1.0f);
+	  mWindow.GetGFX().GetDeviceContext()->OMSetDepthStencilState(mStencilState1.Get(), 1u);
 	 mCamera->Render(mWindow.GetGFX());
 
 	 mBoxShape->Render(mWindow.GetGFX());
@@ -659,6 +672,8 @@ int App::Excute()
 
 	 for (auto box : mBoxes)
 	 {
+		 if (!mCamera->GetFrustum().InspectOBBAndPlane(box.get()->GetBoundingBox()))
+			 continue;
 		 box->Render(mWindow.GetGFX());
 	 }
 
@@ -688,13 +703,15 @@ int App::Excute()
 	}
 	mCamera->SetViewMatrix(oldViewMatrix);
 	
-
-	
 	//mBoundingBox->Update(mWindow.GetGFX());
 	//mBoundingBox->Render(mWindow.GetGFX());
 	//뷰포트, 카메라 초기화
 	mWindow.GetGFX().SetViewMatrix(oldViewMatrix);
 	mWindow.GetGFX().GetDeviceContext()->RSSetViewports(1, &mViewPort[0]);
+
+	mMap->Render(mWindow.GetGFX());
+	/*mWindow.GetGFX().GetDeviceContext()->RSSetState(mRasterizerStateWireFrame.Get());
+	mWindow.GetGFX().GetDeviceContext()->RSSetState(mRasterizerStateSolid.Get());*/
 
 	 mWindow.GetGFX().EndFrame();
 	 return false;
