@@ -273,7 +273,7 @@ int App::Excute()
 
 	 mVertexBufferClass = std::make_unique<VertexBuffer>(mWindow.GetGFX(), vertexData);
 
-	 std::vector<WORD> indices =
+	 std::vector<DWORD> indices =
 	 {
 		 0,1,2,
 		 0,2,3,
@@ -369,7 +369,7 @@ int App::Excute()
 
 	 mWindow.GetGFX().SetViewMatrix(mCamera.get()->GetViewMatrix());
 	 float aspect = static_cast<float>(mWindow.windowWidth) / static_cast<float>(mWindow.windowHeight);
-	 mWindow.GetGFX().SetProjectionMatrix(DirectX::XMMatrixPerspectiveFovLH(DirectX::XM_PIDIV2, aspect, 1.0f, 1000.0f));
+	 mWindow.GetGFX().SetProjectionMatrix(DirectX::XMMatrixPerspectiveFovLH(DirectX::XM_PIDIV2, aspect, 1.0f, 2000.0f));
 	 mCamera.get()->SetProjectionMatrix(mWindow.GetGFX().GetProjectionMatrix());
 
 	 mCamera.get()->CreateFrustum(mWindow.GetGFX());
@@ -447,11 +447,12 @@ int App::Excute()
 	 }
 
 	 mydx::MapDesc mapDesc = {};
-	 mapDesc.ColCellCount = 16u;
-	 mapDesc.RowCellCount = 16u;
+	 mapDesc.ColCellCount = 1024u;
+	 mapDesc.RowCellCount = 768u;
 	 mapDesc.CellDistance = 1.0f;
 
-	 mMap = std::make_unique<mydx::Map>(mWindow.GetGFX(), mapDesc, nullptr);
+	 //mMap = std::make_unique<mydx::Map>(mWindow.GetGFX(), mapDesc, nullptr);
+	 mHeightMap = std::make_unique<mydx::HeightMap>(mWindow.GetGFX(),L"../../data/map/WaterHeight.jpg");
 
 	 return false;
 }
@@ -647,7 +648,8 @@ int App::Excute()
 		 box->Update(mWindow.GetGFX());
 	 }
 
-	 mMap->Update(mWindow.GetGFX());
+	 //mMap->Update(mWindow.GetGFX());
+	 mHeightMap->Update(mWindow.GetGFX());
 	 //mBoxShape->SetRotation(oldRotationVector);
 	 //mBoxShape->SetRotation(::XMVectorSet(0.0f, t, 0.0f, 0.0f));
 
@@ -709,7 +711,8 @@ int App::Excute()
 	mWindow.GetGFX().SetViewMatrix(oldViewMatrix);
 	mWindow.GetGFX().GetDeviceContext()->RSSetViewports(1, &mViewPort[0]);
 
-	mMap->Render(mWindow.GetGFX());
+	//mMap->Render(mWindow.GetGFX());
+	mHeightMap->Render(mWindow.GetGFX());
 	/*mWindow.GetGFX().GetDeviceContext()->RSSetState(mRasterizerStateWireFrame.Get());
 	mWindow.GetGFX().GetDeviceContext()->RSSetState(mRasterizerStateSolid.Get());*/
 

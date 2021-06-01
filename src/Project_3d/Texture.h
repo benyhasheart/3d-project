@@ -6,10 +6,11 @@ class Texture : public Bindable
 {
 public:
 	Texture() = default;
-	Texture(Texture& src) = delete;
-	Texture& operator=(Texture& src) = delete;
+	//Texture(Texture& src) = delete;
+	//Texture& operator=(Texture& src) = delete;
 
 	Texture(Graphics& graphics, const TCHAR* fileName);
+	Texture(Graphics& graphics, const TCHAR* fileName, const D3D11_USAGE usage);
 	virtual ~Texture() = default;
 
 public:

@@ -24,7 +24,7 @@ namespace mydx
 	class Map : public Drawable
 	{
 	public:
-		Map() = default;
+		Map();
 		virtual ~Map()= default;
 
 		Map(Graphics& graphics, MapDesc& mapDesc, const TCHAR* textureFileName );
@@ -41,12 +41,18 @@ namespace mydx
 
 		DirectX::XMMATRIX GetTransform() const noexcept override final;
 
-	private:
+	protected:
+		void createVertices(UINT width, UINT height, UINT cellDistance);
+		void createIndices(UINT width, UINT height);
+		DirectX::XMVECTOR computeFaceNormal(DirectX::XMVECTOR vertex0, DirectX::XMVECTOR vertex1, DirectX::XMVECTOR vertex2);
+
+	protected:
 		std::shared_ptr<VertexBuffer> mVertexBuffer;
 		std::shared_ptr<IndexBuffer> mIndexBuffer;
 		std::vector<VertexData> mVertexData;
-		std::vector<WORD>	mIndices;
-
+		std::vector<DWORD>	mIndices;
+		MapDesc mMapDesc;
+		
 		DirectX::XMMATRIX mTransform;
 	};
 }

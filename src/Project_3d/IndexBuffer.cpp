@@ -1,11 +1,11 @@
 #include "IndexBuffer.h"
 
-IndexBuffer::IndexBuffer(Graphics& graphics, const std::vector<WORD> indices)
+IndexBuffer::IndexBuffer(Graphics& graphics, const std::vector<DWORD> indices)
 	:mCount(indices.size())
 {
 
 	D3D11_BUFFER_DESC indexDesc;
-	indexDesc.ByteWidth = sizeof(WORD) * indices.size();
+	indexDesc.ByteWidth = sizeof(DWORD) * indices.size();
 	indexDesc.Usage = D3D11_USAGE_DEFAULT;
 	indexDesc.BindFlags = D3D11_BIND_INDEX_BUFFER;
 	indexDesc.CPUAccessFlags = 0;
@@ -23,5 +23,5 @@ UINT IndexBuffer::GetCount() const
 
 void IndexBuffer::Bind(Graphics& graphics) noexcept
 {
-	graphics.GetDeviceContext()->IASetIndexBuffer(mIndexBuffer.Get(), DXGI_FORMAT_R16_UINT, 0);
+	graphics.GetDeviceContext()->IASetIndexBuffer(mIndexBuffer.Get(), DXGI_FORMAT_R32_UINT, 0);
 }

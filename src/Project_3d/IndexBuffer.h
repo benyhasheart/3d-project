@@ -5,7 +5,7 @@
 class IndexBuffer : public Bindable
 {
 public:
-	IndexBuffer(Graphics& graphics, const std::vector<WORD> indices);
+	IndexBuffer(Graphics& graphics, const std::vector<DWORD> indices);
 	virtual ~IndexBuffer() = default;
 
 public:

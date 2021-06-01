@@ -17,7 +17,7 @@
 #include "Box.h"
 #include "Camera.h"
 #include "BoundingBox.h"
-#include "Map.h"
+#include "HeightMap.h"
 
 
 
@@ -103,6 +103,7 @@ public:
 	std::unique_ptr<Camera> mTopViewCamera;
 	std::unique_ptr<mydx::BoundingBox> mBoundingBox;
 	std::unique_ptr<mydx::Map> mMap;
+	std::unique_ptr<mydx::HeightMap> mHeightMap;
 
 	Microsoft::WRL::ComPtr<ID3D11Texture2D> mTexture1;
 	Microsoft::WRL::ComPtr<ID3D11Texture2D> mTexture2;

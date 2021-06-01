@@ -93,7 +93,7 @@ bool Box::Initialize(Graphics& graphics) noexcept
 
 	AddBind(std::make_unique<VertexBuffer>(graphics, vertices));
 
-	const std::vector<unsigned short> indices =
+	const std::vector<DWORD> indices =
 	{
 		0,2,1, 2,3,1,
 		1,3,5, 3,7,5,

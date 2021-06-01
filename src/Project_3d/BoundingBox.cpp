@@ -71,7 +71,7 @@ bool mydx::BoundingBox::Initialize(Graphics& graphics) noexcept
 		{ -1.0f,1.0f,1.0f,1.0f,		1.0f, 0.0f, 0.0f, 1.0f},
 		{ 1.0f,1.0f,1.0f,1.0f,		1.0f, 0.0f, 0.0f, 1.0f},
 	};
-	const std::vector<unsigned short> indices =
+	const std::vector<DWORD> indices =
 	{
 		0,2,1, 2,3,1,
 		1,3,5, 3,7,5,
