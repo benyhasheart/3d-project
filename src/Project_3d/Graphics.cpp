@@ -29,7 +29,7 @@ HRESULT Graphics::createDevice()
 {
 	HRESULT hr = S_OK;
 	UINT createDeviceFlags = 0u;
-#ifndef _DEBUG
+#ifdef IS_DEBUG
 	createDeviceFlags |= D3D11_CREATE_DEVICE_DEBUG;
 #endif // !_DEBUG
 

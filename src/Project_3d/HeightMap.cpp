@@ -103,45 +103,9 @@ mydx::HeightMap::HeightMap(Graphics& graphics, const TCHAR* textureFileName)
 
 	}
 
-	const UINT numberIncludedInFace = 3;
-	UINT vertexIndex[numberIncludedInFace] = {0};
-	::XMVECTOR vertex[3] ={};
-	::XMVECTOR faceNormal = {};
-	::XMFLOAT4 vertexNormal = {};
-	for (UINT indicesIndex = 0; indicesIndex < mIndices.size(); indicesIndex += numberIncludedInFace)
-	{
-		vertexIndex[0] = mIndices[indicesIndex + 0u];
-		vertexIndex[1] = mIndices[indicesIndex + 1u];
-		vertexIndex[2] = mIndices[indicesIndex + 2u];
-		//face = 3 vertex
-		vertex[0] = ::XMLoadFloat4(&mVertexData[vertexIndex[0]].position);
-		vertex[1] = ::XMLoadFloat4(&mVertexData[vertexIndex[1]].position);
-		vertex[2] = ::XMLoadFloat4(&mVertexData[vertexIndex[2]].position);
-		
-		faceNormal = computeFaceNormal(vertex[0], vertex[1], vertex[2]);
-		////facenormal stored
-		//::XMStoreFloat4(&mVertexData[vertexIndex[0]].normal, faceNormal);
-		//::XMStoreFloat4(&mVertexData[vertexIndex[1]].normal, faceNormal);
-		//::XMStoreFloat4(&mVertexData[vertexIndex[2]].normal, faceNormal);
-		//vertexNormal stored
-		::XMStoreFloat4(&vertexNormal, faceNormal);
-		
-		mVertexData[vertexIndex[0]].normal.x += vertexNormal.x;
-		mVertexData[vertexIndex[0]].normal.y += vertexNormal.y;
-		mVertexData[vertexIndex[0]].normal.z += vertexNormal.z;
-		mVertexData[vertexIndex[0]].normal.w += vertexNormal.w;
-
-		mVertexData[vertexIndex[1]].normal.x += vertexNormal.x;
-		mVertexData[vertexIndex[1]].normal.y += vertexNormal.y;
-		mVertexData[vertexIndex[1]].normal.z += vertexNormal.z;
-		mVertexData[vertexIndex[1]].normal.w += vertexNormal.w;
-
-		mVertexData[vertexIndex[2]].normal.x += vertexNormal.x;
-		mVertexData[vertexIndex[2]].normal.y += vertexNormal.y;
-		mVertexData[vertexIndex[2]].normal.z += vertexNormal.z;
-		mVertexData[vertexIndex[2]].normal.w += vertexNormal.w;
-		
-	}
+	createFaceNormal(mMapDesc.ColCellCount, mMapDesc.RowCellCount);
+	createVertexNoramlLookupTable();
+	updateVertexNormal();
 
 	AddBind(std::make_unique<VertexBuffer>(graphics, mVertexData));
 

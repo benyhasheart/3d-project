@@ -32,8 +32,10 @@ struct PS_input
 
 VS_output vertexShaderMain(VS_input input)
 {
+	VS_output outData;
 	input.position = mul(input.position, transform);
-	return input;
+	outData = input;
+	return outData;
 }
 
 float4 pixelShaderMain(PS_input input) : SV_TARGET

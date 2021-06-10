@@ -18,6 +18,7 @@
 #include "Camera.h"
 #include "BoundingBox.h"
 #include "HeightMap.h"
+#include "QuardTreeVertexIndex.h"
 
 
 
@@ -103,7 +104,9 @@ public:
 	std::unique_ptr<Camera> mTopViewCamera;
 	std::unique_ptr<mydx::BoundingBox> mBoundingBox;
 	std::unique_ptr<mydx::Map> mMap;
-	std::unique_ptr<mydx::HeightMap> mHeightMap;
+	std::shared_ptr<mydx::HeightMap> mHeightMap;
+	std::unique_ptr<mydx::QuardTree> mQuardTree;
+	std::unique_ptr<mydx::QuardTreeVertexIndex> mQuardTreeVertexIndex;
 
 	Microsoft::WRL::ComPtr<ID3D11Texture2D> mTexture1;
 	Microsoft::WRL::ComPtr<ID3D11Texture2D> mTexture2;

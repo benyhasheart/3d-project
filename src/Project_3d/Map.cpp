@@ -1,4 +1,5 @@
 #include "Map.h"
+#include <DxErr.h>
 
 using namespace DirectX;
 
@@ -168,6 +169,16 @@ DirectX::XMMATRIX mydx::Map::GetTransform() const noexcept
     return mTransform;
 }
 
+std::vector<mydx::VertexData>& mydx::Map::GetVertexData() noexcept
+{
+    return mVertexData;
+}
+
+mydx::MapDesc& mydx::Map::GetMapDesc() noexcept
+{
+        return mMapDesc;
+}
+
 void mydx::Map::createVertices(UINT width, UINT height, UINT cellDistance)
 {
     UINT rowCount = height + 1;
@@ -243,6 +254,94 @@ void mydx::Map::createIndices(UINT width, UINT height)
             currentIndex += face * index;
         }
 
+    }
+}
+
+void mydx::Map::createFaceNormal(UINT width, UINT height)
+{
+    UINT bufferSize = width * height * 2;
+    if ( mFaceNormalTabel.size() != bufferSize)
+    {
+        ::XMVECTOR init = {0.0f,0.0f,0.0f,0.0f};
+        mFaceNormalTabel.resize( bufferSize, init);
+    }
+
+    const UINT numberIncludedInFace = 3;
+    UINT faceNormalIndex = 0; 
+    UINT vertexIndex[numberIncludedInFace] = { 0 };
+    ::XMVECTOR vertex[3] = {};
+    ::XMVECTOR faceNormal = {};
+    ::XMFLOAT4 vertexNormal = {};
+    for (UINT indicesIndex = 0; indicesIndex < mIndices.size(); indicesIndex += numberIncludedInFace)
+    {
+        vertexIndex[0] = mIndices[indicesIndex + 0u];
+        vertexIndex[1] = mIndices[indicesIndex + 1u];
+        vertexIndex[2] = mIndices[indicesIndex + 2u];
+        //face = 3 vertex
+        vertex[0] = ::XMLoadFloat4(&mVertexData[vertexIndex[0]].position);
+        vertex[1] = ::XMLoadFloat4(&mVertexData[vertexIndex[1]].position);
+        vertex[2] = ::XMLoadFloat4(&mVertexData[vertexIndex[2]].position);
+
+        faceNormal = computeFaceNormal(vertex[0], vertex[1], vertex[2]);
+
+        mFaceNormalTabel[faceNormalIndex] = faceNormal;
+        faceNormalIndex++;
+
+    }
+
+
+
+}
+
+void mydx::Map::createVertexNoramlLookupTable()
+{
+    const UINT oneBlockSizeOfLookupTable = 6u;
+
+    UINT bufferSize = mVertexData.size() * oneBlockSizeOfLookupTable;
+    mVertexNormalLookupTabel.resize(bufferSize, -1);
+
+    const UINT numberIncludedInFace = 3u;
+    UINT faceCount = mFaceNormalTabel.size();
+    for (UINT faceIndex = 0; faceIndex < faceCount; faceIndex++)
+    {
+
+        for (UINT indicesIndex = 0; indicesIndex < numberIncludedInFace; indicesIndex++)
+        {
+            auto vertexIndex = mIndices[faceIndex * numberIncludedInFace + indicesIndex];
+          
+            for (UINT lookupTableIndex = 0; lookupTableIndex < oneBlockSizeOfLookupTable; lookupTableIndex++)
+            {
+                //한 정점이 공유할 수 있는 face의 갯수가 최대 6개.
+                if (mVertexNormalLookupTabel[vertexIndex * oneBlockSizeOfLookupTable + lookupTableIndex] == -1)
+                {
+                    mVertexNormalLookupTabel[vertexIndex * oneBlockSizeOfLookupTable + lookupTableIndex] = faceIndex;
+                    break;
+                }
+            }
+            
+        }
+    }
+}
+
+void mydx::Map::updateVertexNormal()
+{
+    ::XMVECTOR averageNormal = {};
+    UINT oneblockSizeOfLookupTable = 6u;
+    UINT faceNormalIndex = 0u;
+
+    for (UINT vertexIndex = 0; vertexIndex < mVertexData.size(); vertexIndex++)
+    {
+        for (UINT lookupIndex = 0; lookupIndex < oneblockSizeOfLookupTable; lookupIndex++)
+        {
+            
+            if (mVertexNormalLookupTabel[vertexIndex * oneblockSizeOfLookupTable + lookupIndex] != -1)
+            {   
+                faceNormalIndex = mVertexNormalLookupTabel[vertexIndex * oneblockSizeOfLookupTable + lookupIndex];
+                averageNormal += mFaceNormalTabel[faceNormalIndex];
+            }
+        }
+        averageNormal = ::XMVector3Normalize(averageNormal);
+        ::XMStoreFloat4(&mVertexData[vertexIndex].normal, averageNormal);
     }
 }
 

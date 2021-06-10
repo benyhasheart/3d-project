@@ -1,6 +1,7 @@
 #pragma once
 #include <tchar.h>
 
+#include "CommonDataStruct.h"
 #include "Drawable.h"
 #include "BindableBase.h"
 
@@ -11,14 +12,6 @@ namespace mydx
 		UINT RowCellCount;
 		UINT ColCellCount;
 		float CellDistance;
-	};
-
-	struct VertexData
-	{
-		DirectX::XMFLOAT4 position;
-		DirectX::XMFLOAT4 color;
-		DirectX::XMFLOAT4 normal;
-		DirectX::XMFLOAT4 textureCoordinate;
 	};
 	
 	class Map : public Drawable
@@ -41,9 +34,15 @@ namespace mydx
 
 		DirectX::XMMATRIX GetTransform() const noexcept override final;
 
+	public:
+		std::vector<VertexData>& GetVertexData() noexcept;
+		MapDesc& GetMapDesc() noexcept;
 	protected:
 		void createVertices(UINT width, UINT height, UINT cellDistance);
 		void createIndices(UINT width, UINT height);
+		void createFaceNormal(UINT width, UINT height);
+		void createVertexNoramlLookupTable();
+		void updateVertexNormal();
 		DirectX::XMVECTOR computeFaceNormal(DirectX::XMVECTOR vertex0, DirectX::XMVECTOR vertex1, DirectX::XMVECTOR vertex2);
 
 	protected:
@@ -51,7 +50,11 @@ namespace mydx
 		std::shared_ptr<IndexBuffer> mIndexBuffer;
 		std::vector<VertexData> mVertexData;
 		std::vector<DWORD>	mIndices;
+		std::vector<DirectX::XMVECTOR> mFaceNormalTabel;
+		std::vector<int> mVertexNormalLookupTabel;
 		MapDesc mMapDesc;
+
+
 		
 		DirectX::XMMATRIX mTransform;
 	};

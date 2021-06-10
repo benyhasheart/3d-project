@@ -453,7 +453,11 @@ int App::Excute()
 
 	 //mMap = std::make_unique<mydx::Map>(mWindow.GetGFX(), mapDesc, nullptr);
 	 mHeightMap = std::make_unique<mydx::HeightMap>(mWindow.GetGFX(),L"../../data/map/WaterHeight.jpg");
-
+	 //mQuardTree = std::make_unique<mydx::QuardTreeVertexIndex>();
+	 //mQuardTree->Build(8,8);
+	 mQuardTreeVertexIndex = std::make_unique<mydx::QuardTreeVertexIndex>();
+	 //mQuardTreeVertexIndex->Build(mHeightMap.get(), mHeightMap.get()->GetMapDesc().ColCellCount, mHeightMap.get()->GetMapDesc().RowCellCount);
+	 mQuardTreeVertexIndex->Build(mHeightMap.get(), 8,8);
 	 return false;
 }
 

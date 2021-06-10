@@ -1,21 +1,12 @@
 #pragma once
+
+#include "CommonDataStruct.h"
 #include "Drawable.h"
 #include "BindableBase.h"
 
+
 namespace mydx
 {
-
-	struct BoundingBoxData
-	{
-		//AABB condition
-		DirectX::XMVECTOR Min;
-		DirectX::XMVECTOR Max;
-		DirectX::XMVECTOR Center;
-		//OBB condition
-		//	DirectX::XMFLOAT3 Center;
-		DirectX::XMVECTOR Axis[3];
-		DirectX::XMVECTOR Extent[3];
-	};
 
 class BoundingBox : public Drawable
 {
