@@ -91,7 +91,7 @@ bool Box::Initialize(Graphics& graphics) noexcept
 
 	std::vector<VerTex> vertexData;
 
-	AddBind(std::make_unique<VertexBuffer>(graphics, vertices));
+	AddBind(std::make_shared<VertexBuffer>(graphics, vertices));
 
 	const std::vector<DWORD> indices =
 	{
@@ -103,9 +103,9 @@ bool Box::Initialize(Graphics& graphics) noexcept
 		0,1,4, 1,5,4
 	};
 
-	AddIndexBuffer(std::make_unique<IndexBuffer>(graphics, indices));
+	AddIndexBuffer(std::make_shared<IndexBuffer>(graphics, indices));
 
-	auto mVertexShaderClass = std::make_unique<VertexShader>(graphics, L"VertexShader.vsh", "main");
+	auto mVertexShaderClass = std::make_shared<VertexShader>(graphics, L"VertexShader.vsh", "main");
 	auto bytecodeBlob = mVertexShaderClass->GetBytecodeBlob();
 
 	AddBind(std::move(mVertexShaderClass));
@@ -117,15 +117,15 @@ bool Box::Initialize(Graphics& graphics) noexcept
 		{ "TEXCOORD", 0, DXGI_FORMAT_R32G32_FLOAT, 0, 16, D3D11_INPUT_PER_VERTEX_DATA, 0},
 	};
 
-	AddBind(std::make_unique<InputLayout>(graphics, layoutList, bytecodeBlob));
+	AddBind(std::make_shared<InputLayout>(graphics, layoutList, bytecodeBlob));
 
-	AddBind(std::make_unique<Topology>(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST));
+	AddBind(std::make_shared<Topology>(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST));
 
-	AddBind(std::make_unique<PixelShader>(graphics, L"PixelShader.psh", "main"));
+	AddBind(std::make_shared<PixelShader>(graphics, L"PixelShader.psh", "main"));
 
-	AddBind(std::make_unique<Texture>(graphics, L"../../data/etcTexture/desert.jpg"));
+	AddBind(std::make_shared<Texture>(graphics, L"../../data/etcTexture/desert.jpg"));
 
-	AddBind(std::make_unique<TransformConstantBuffer>(graphics, *this));
+	AddBind(std::make_shared<TransformConstantBuffer>(graphics, *this));
 
 
 	return false;

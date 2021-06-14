@@ -25,3 +25,9 @@ void IndexBuffer::Bind(Graphics& graphics) noexcept
 {
 	graphics.GetDeviceContext()->IASetIndexBuffer(mIndexBuffer.Get(), DXGI_FORMAT_R32_UINT, 0);
 }
+
+void IndexBuffer::UpdateIndices(Graphics& graphics, std::vector<DWORD>& indicesTable) noexcept
+{
+	mCount = indicesTable.size();
+	graphics.GetDeviceContext()->UpdateSubresource(mIndexBuffer.Get(), 0u, nullptr, indicesTable.data(), 0u, 0u);
+}

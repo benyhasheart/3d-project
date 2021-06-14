@@ -24,6 +24,7 @@ namespace mydx
 
 	public:
 		void CreateMap(MapDesc& mapDesc);
+		void UpdateIndexBuffer(Graphics& graphics, std::vector<DWORD>& indicesTable) noexcept;
 	public:
 		bool Initialize(Graphics& graphics) noexcept override final;
 		bool Update(Graphics& graphics) noexcept override final;

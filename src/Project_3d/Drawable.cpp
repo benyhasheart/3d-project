@@ -34,12 +34,12 @@ void Drawable::ResourceUpdate(Graphics& graphic) const noexcept
 }
 
 
-void Drawable::AddBind(std::unique_ptr<Bindable> bindObject) noexcept(!IS_DEBUG)
+void Drawable::AddBind(std::shared_ptr<Bindable> bindObject) noexcept(!IS_DEBUG)
 {
 	assert("don't input IndexBuffer" && typeid(*bindObject) != typeid(IndexBuffer) );
 	mBinds.push_back(std::move(bindObject));
 }
-void Drawable::AddIndexBuffer(std::unique_ptr<class IndexBuffer> indexBuffer) noexcept(!IS_DEBUG)
+void Drawable::AddIndexBuffer(std::shared_ptr<class IndexBuffer> indexBuffer) noexcept(!IS_DEBUG)
 {
 	assert("plz input indexBuffer" && mIndexBuffer == nullptr );
 	mIndexBuffer = indexBuffer.get();

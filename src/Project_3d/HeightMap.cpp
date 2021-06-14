@@ -12,7 +12,7 @@ mydx::HeightMap::HeightMap(Graphics& graphics, const TCHAR* textureFileName)
 	}
 
 
-	auto mVertexShaderClass = std::make_unique<VertexShader>(graphics, L"CustomMap.hlsl", "vertexShaderMain");
+	auto mVertexShaderClass = std::make_shared<VertexShader>(graphics, L"CustomMap.hlsl", "vertexShaderMain");
 	auto bytecodeBlob = mVertexShaderClass->GetBytecodeBlob();
 
 	AddBind(std::move(mVertexShaderClass));
@@ -27,19 +27,19 @@ mydx::HeightMap::HeightMap(Graphics& graphics, const TCHAR* textureFileName)
 		{ "TEXTURECOORD", 0, DXGI_FORMAT_R32G32B32A32_FLOAT, 0, 48, D3D11_INPUT_PER_VERTEX_DATA, 0},
 	};
 
-	AddBind(std::make_unique<InputLayout>(graphics, layoutList, bytecodeBlob));
+	AddBind(std::make_shared<InputLayout>(graphics, layoutList, bytecodeBlob));
 
-	AddBind(std::make_unique<Topology>(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST));
+	AddBind(std::make_shared<Topology>(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST));
 
-	AddBind(std::make_unique<PixelShader>(graphics, L"CustomMap.hlsl", "pixelShaderMain"));
+	AddBind(std::make_shared<PixelShader>(graphics, L"CustomMap.hlsl", "pixelShaderMain"));
 
-	std::unique_ptr<Texture> texture = std::make_unique<Texture>(graphics, textureFileName);
+	std::shared_ptr<Texture> texture = std::make_shared<Texture>(graphics, textureFileName);
 	mTexture2d = const_cast<ID3D11Texture2D*>(texture.get()->GetTexture());
 	mTextureDesc = texture.get()->GetTextureDesc();
 
 	AddBind(std::move(texture));
 
-	AddBind(std::make_unique<TransformConstantBuffer>(graphics, *this));
+	AddBind(std::make_shared<TransformConstantBuffer>(graphics, *this));
 
 	//create vertex, index
 	mMapDesc.RowCellCount = mTextureDesc.Height;
@@ -107,9 +107,9 @@ mydx::HeightMap::HeightMap(Graphics& graphics, const TCHAR* textureFileName)
 	createVertexNoramlLookupTable();
 	updateVertexNormal();
 
-	AddBind(std::make_unique<VertexBuffer>(graphics, mVertexData));
-
-	AddIndexBuffer(std::make_unique<IndexBuffer>(graphics, mIndices));
+	AddBind(std::make_shared<VertexBuffer>(graphics, mVertexData));
+	mIndexBuffer = std::make_shared<IndexBuffer>(graphics, mIndices);
+	AddIndexBuffer(mIndexBuffer);
 
 
 

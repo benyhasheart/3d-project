@@ -81,13 +81,13 @@ bool mydx::BoundingBox::Initialize(Graphics& graphics) noexcept
 		0,1,4, 1,5,4
 	};
 
-	AddBind(std::make_unique<VertexBuffer>(graphics, vertices));
+	AddBind(std::make_shared<VertexBuffer>(graphics, vertices));
 
 	
 
-	AddIndexBuffer(std::make_unique<IndexBuffer>(graphics, indices));
+	AddIndexBuffer(std::make_shared<IndexBuffer>(graphics, indices));
 
-	auto mVertexShaderClass = std::make_unique<VertexShader>(graphics, L"BaseVertexShader.hlsl", "main");
+	auto mVertexShaderClass = std::make_shared<VertexShader>(graphics, L"BaseVertexShader.hlsl", "main");
 	auto bytecodeBlob = mVertexShaderClass->GetBytecodeBlob();
 
 	AddBind(std::move(mVertexShaderClass));
@@ -99,13 +99,13 @@ bool mydx::BoundingBox::Initialize(Graphics& graphics) noexcept
 		{ "COLOR", 0, DXGI_FORMAT_R32G32B32A32_FLOAT, 0, 16, D3D11_INPUT_PER_VERTEX_DATA, 0},
 	};
 
-	AddBind(std::make_unique<InputLayout>(graphics, layoutList, bytecodeBlob));
+	AddBind(std::make_shared<InputLayout>(graphics, layoutList, bytecodeBlob));
 
-	AddBind(std::make_unique<Topology>(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST));
+	AddBind(std::make_shared<Topology>(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST));
 
-	AddBind(std::make_unique<PixelShader>(graphics, L"BasePixelShader.hlsl", "main"));
+	AddBind(std::make_shared<PixelShader>(graphics, L"BasePixelShader.hlsl", "main"));
 
-	AddBind(std::make_unique<TransformConstantBuffer>(graphics, *this));
+	AddBind(std::make_shared<TransformConstantBuffer>(graphics, *this));
 
 
 	D3D11_RASTERIZER_DESC RSdesc = {};

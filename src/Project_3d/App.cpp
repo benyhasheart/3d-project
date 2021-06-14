@@ -2,6 +2,7 @@
 #include <random>
 
 #include "App.h"
+#include "EnumData.h"
 #include "Matrix.h"
 #include "ModelViewCamera.h"
 #include "FirstPersonViewCamera.h"
@@ -456,8 +457,10 @@ int App::Excute()
 	 //mQuardTree = std::make_unique<mydx::QuardTreeVertexIndex>();
 	 //mQuardTree->Build(8,8);
 	 mQuardTreeVertexIndex = std::make_unique<mydx::QuardTreeVertexIndex>();
-	 //mQuardTreeVertexIndex->Build(mHeightMap.get(), mHeightMap.get()->GetMapDesc().ColCellCount, mHeightMap.get()->GetMapDesc().RowCellCount);
-	 mQuardTreeVertexIndex->Build(mHeightMap.get(), 8,8);
+	 mQuardTreeVertexIndex->SetMap(mHeightMap.get());
+	 mQuardTreeVertexIndex->Build(mHeightMap.get(), mHeightMap.get()->GetMapDesc().ColCellCount, mHeightMap.get()->GetMapDesc().RowCellCount);
+	 //mQuardTreeVertexIndex->Build(mHeightMap.get(), 8,8);
+	 mQuardTreeVertexIndex->SetCamera(mCamera.get());
 	 return false;
 }
 
@@ -653,7 +656,6 @@ int App::Excute()
 	 }
 
 	 //mMap->Update(mWindow.GetGFX());
-	 mHeightMap->Update(mWindow.GetGFX());
 	 //mBoxShape->SetRotation(oldRotationVector);
 	 //mBoxShape->SetRotation(::XMVectorSet(0.0f, t, 0.0f, 0.0f));
 
@@ -663,6 +665,10 @@ int App::Excute()
 
 	 //mBoxShape->Update(0.0f);
 	 //mBoxShape->Draw(mWindow.GetGFX());
+
+	 mQuardTreeVertexIndex->Update(mWindow.GetGFX());
+	 mHeightMap->UpdateIndexBuffer(mWindow.GetGFX(), mQuardTreeVertexIndex->GetUpdateIndexTable());
+	 mHeightMap->Update(mWindow.GetGFX());
 
 	 return false;
 }
@@ -676,9 +682,9 @@ int App::Excute()
 	 mBoundingBox->Render(mWindow.GetGFX());
 
 
-	 for (auto box : mBoxes)
+	 for (auto& box : mBoxes)
 	 {
-		 if (!mCamera->GetFrustum().InspectOBBAndPlane(box.get()->GetBoundingBox()))
+		 if (mCamera->GetFrustum().InspectOBBAndPlane(box.get()->GetBoundingBox().GetBoundingBoxData()) == mydx::eCollisionResult::Back)
 			 continue;
 		 box->Render(mWindow.GetGFX());
 	 }
@@ -699,9 +705,9 @@ int App::Excute()
 		mBoxShape->Render(mWindow.GetGFX());
 	}
 	
-	for (auto box : mBoxes)
+	for (auto& box : mBoxes)
 	{
-		if ( !mCamera->GetFrustum().InspectOBBAndPlane(box.get()->GetBoundingBox()))
+		if ( mCamera->GetFrustum().InspectOBBAndPlane(box.get()->GetBoundingBox().GetBoundingBoxData()) == mydx::eCollisionResult::Back)
 			continue;
 
 		box->Update(mWindow.GetGFX());

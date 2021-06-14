@@ -20,11 +20,11 @@ protected:
 	void ResourceUpdate(Graphics& graphic) const noexcept;
 
 protected:
-	void AddBind(std::unique_ptr<Bindable> bindObject) noexcept(!IS_DEBUG);
-	void AddIndexBuffer(std::unique_ptr<class IndexBuffer> indexBuffer) noexcept(!IS_DEBUG);
+	void AddBind(std::shared_ptr<Bindable> bindObject) noexcept(!IS_DEBUG);
+	void AddIndexBuffer(std::shared_ptr<class IndexBuffer> indexBuffer) noexcept(!IS_DEBUG);
 
 private:
 	class IndexBuffer* mIndexBuffer;
-	std::vector<std::unique_ptr<Bindable>> mBinds;
+	std::vector<std::shared_ptr<Bindable>> mBinds;
 };
 

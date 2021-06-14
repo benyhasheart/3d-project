@@ -1,6 +1,6 @@
 #include <memory>
-#include "Frustum.h"
 #include "BoundingBox.h"
+#include "Frustum.h"
 
 using namespace DirectX;
 mydx::Frustum::Frustum()
@@ -150,14 +150,14 @@ bool mydx::Frustum::InspectionSphere(DirectX::XMVECTOR point, float radius) noex
     return true;
 }
 
-bool mydx::Frustum::InspectOBBAndPlane(const BoundingBox& box)
+mydx::eCollisionResult mydx::Frustum::InspectOBBAndPlane(const BoundingBoxData& box)
 {
     
-
     float planeToCenter = {};
     float distance = {};
     ::XMVECTOR direction = {};
-    BoundingBoxData boxData = box.GetBoundingBoxData();
+    BoundingBoxData boxData = box;
+    mydx::eCollisionResult result = mydx::eCollisionResult::Front;
 
     // d = N dot ( normal(axis) * extend)xyz
     for (auto plane : mPlane)
@@ -181,14 +181,19 @@ bool mydx::Frustum::InspectOBBAndPlane(const BoundingBox& box)
                         + plane.z * ::XMVectorGetZ(boxData.Center) 
                         + plane.w; // plane.w is between plane and origin distance
         
-        if ( planeToCenter < -distance)
+        if (planeToCenter <= distance)
         {
-            return false;
+            result = mydx::eCollisionResult::Spanning;
+        }
+
+        if ( planeToCenter + 1.0f < -distance)
+        {
+            return mydx::eCollisionResult::Back;
         }
   
     }
 
-    return true;
+    return result;
 }
 
 

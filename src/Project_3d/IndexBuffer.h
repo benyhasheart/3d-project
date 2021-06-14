@@ -11,6 +11,8 @@ public:
 public:
 	void Bind(Graphics& graphics) noexcept override final;
 	virtual bool Update(Graphics& graphics) noexcept final { return false; }
+	
+	void UpdateIndices(Graphics& graphics, std::vector<DWORD>& indicesTable) noexcept;
 
 public:
 	UINT GetCount() const ;

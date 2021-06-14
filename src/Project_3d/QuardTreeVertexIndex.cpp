@@ -5,30 +5,47 @@
 using namespace mydx;
 using namespace DirectX;
 mydx::QuardTreeVertexIndex::QuardTreeVertexIndex()
-	:
-	mMap(nullptr),
-	mWidth(0.0f),
-	mHeight(0.0f),
-	mFaceCount(0)
 {
 }
 
-bool mydx::QuardTreeVertexIndex::Build(Map* map, float width, float height) noexcept
+bool mydx::QuardTreeVertexIndex::Build(Map* map, DWORD width, DWORD height) noexcept
 {
     mWidth = width ;
     mHeight = height ;
-    mFaceCount = (mWidth - 1) * (mHeight - 1) * 2 ;
+    mFaceCount = mWidth * mHeight  * 2 ;
 
     mRootNode = std::make_shared<mydx::Node>(*createNode(nullptr, 
-                                                0, mWidth - 1, 
-                                                mWidth  * (mHeight - 1), mWidth  * mHeight - 1));
+                                                0, mWidth - 1 , 
+                                                mWidth  * (mHeight - 1), mWidth  * mHeight ));
 
+    size_t size = static_cast<size_t>(mFaceCount) * 3;
+    mUpdateIndexTable.resize(size, 0);
     if (mRootNode != nullptr)
     {
         QuardTree::buildTree(mRootNode.get());
     }
 	return true;
 }
+
+bool mydx::QuardTreeVertexIndex::Update(Graphics& graphics) noexcept
+{
+    if ( !QuardTree::Update(graphics) ) return false;
+
+
+    UINT faceCount = 0;
+
+    for (auto& node : mDrawableNode)
+    {
+            faceCount += updateIndexTable( faceCount * 3,
+                                            node->GetCornerVertexIndexTable()[0],
+                                            node->GetCornerVertexIndexTable()[1], 
+                                            node->GetCornerVertexIndexTable()[2], 
+                                            node->GetCornerVertexIndexTable()[3] );
+    }
+    
+    return true;
+}
+
 
 
 bool mydx::QuardTreeVertexIndex::divideSection(Node* node) noexcept
@@ -115,25 +132,32 @@ Node* mydx::QuardTreeVertexIndex::createNode(Node* parentNode, unsigned long min
     node->GetCornerList().reserve(4);
     node->GetCornerVertexIndexTable().reserve(4);
 
-    mydx::BoundingBoxData boundingBox;
-    boundingBox.Min = ::XMVectorSet(minX, 0.0f, minZ, 0.0f);
-    boundingBox.Max = ::XMVectorSet(maxX, 0.0f, maxZ, 0.0f);
-
-    boundingBox.Center = (boundingBox.Max + boundingBox.Min) / 2.0f;
-    boundingBox.Extent[0] = ::XMVectorSet(::XMVectorGetX(boundingBox.Max) - ::XMVectorGetX(boundingBox.Center), 0.0f, 0.0f, 0.0f);
-    boundingBox.Extent[1] = ::XMVectorSet(0.0f, ::XMVectorGetY(boundingBox.Max) - ::XMVectorGetY(boundingBox.Center), 0.0f, 0.0f);
-    boundingBox.Extent[2] = ::XMVectorSet(0.0f, 0.0f, ::XMVectorGetZ(boundingBox.Max) - ::XMVectorGetZ(boundingBox.Center), 0.0f);
-    node->SetBoundingBox(boundingBox);
-
-
     node->GetCornerVertexIndexTable().emplace_back(minX);
     node->GetCornerVertexIndexTable().emplace_back(maxX);
     node->GetCornerVertexIndexTable().emplace_back(minZ);
     node->GetCornerVertexIndexTable().emplace_back(maxZ);
+    ComputeBoungigBox(node);
 
 	return node;
 }
+void	mydx::QuardTreeVertexIndex::ComputeBoungigBox(Node*  node) noexcept
+{
+    
+    mydx::BoundingBoxData boundingboxData;
+    boundingboxData.Max = ::XMLoadFloat4(&mMap->GetVertexData()[node->GetCornerVertexIndexTable()[1]].position);
+    boundingboxData.Min = ::XMLoadFloat4(&mMap->GetVertexData()[node->GetCornerVertexIndexTable()[2]].position);
 
+    ::XMMATRIX transform = ::XMMatrixIdentity();
+    boundingboxData.Center = (boundingboxData.Max + boundingboxData.Min) / 2.0f;
+    transform = ::XMMatrixMultiply(transform, ::XMMatrixTranslationFromVector(boundingboxData.Center));
+    boundingboxData.Axis[0] = ::XMVector3Normalize(::XMVector3TransformCoord(::XMVectorSet(1.0f, 0.0f, 0.0f, 0.0f), transform));
+    boundingboxData.Axis[1] = ::XMVector3Normalize(::XMVector3TransformCoord(::XMVectorSet(0.0f, 1.0f, 0.0f, 0.0f), transform));
+    boundingboxData.Axis[2] = ::XMVector3Normalize(::XMVector3TransformCoord(::XMVectorSet(0.0f, 0.0f, 1.0f, 0.0f), transform));
+    boundingboxData.Extent[0] = ::XMVectorSet(::XMVectorGetX(boundingboxData.Max) - ::XMVectorGetX(boundingboxData.Center), 0.0f, 0.0f, 0.0f);
+    boundingboxData.Extent[1] = ::XMVectorSet(0.0f, ::XMVectorGetY(boundingboxData.Max) - ::XMVectorGetY(boundingboxData.Center), 0.0f, 0.0f);
+    boundingboxData.Extent[2] = ::XMVectorSet(0.0f, 0.0f, ::XMVectorGetZ(boundingboxData.Max) - ::XMVectorGetZ(boundingboxData.Center), 0.0f);
+    node->SetBoundingBox(boundingboxData);
+}
 unsigned long mydx::QuardTreeVertexIndex::checkDivideSize(unsigned long size)
 {
     float fCount = 0;

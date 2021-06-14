@@ -59,7 +59,7 @@ bool Camera::Render(Graphics& graphics) noexcept
 	Draw(graphics);
 	PostRender(graphics);
 
-	mFrustum->Render(graphics);
+	//mFrustum->Render(graphics);
 	return false;
 }
 

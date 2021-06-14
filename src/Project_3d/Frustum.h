@@ -1,5 +1,7 @@
 #pragma once
+#include "CommonDataStruct.h"
 #include "Drawable.h"
+#include "EnumData.h"
 #include "BindableBase.h"
 
 namespace mydx
@@ -33,7 +35,7 @@ public:
 public:
 	bool InspectionPoint(DirectX::XMVECTOR point) noexcept;
 	bool InspectionSphere(DirectX::XMVECTOR point, float radius) noexcept;
-	bool InspectOBBAndPlane(const BoundingBox& box );
+	mydx::eCollisionResult InspectOBBAndPlane(const BoundingBoxData& box );
 public:
 	void SetPitchYawRoll(DirectX::XMVECTOR vector)noexcept;
 	const DirectX::XMVECTOR& GetPitchYawRoll() const noexcept;
