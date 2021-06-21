@@ -14,9 +14,11 @@ bool mydx::QuardTreeVertexIndex::Build(Map* map, DWORD width, DWORD height) noex
     mHeight = height ;
     mFaceCount = mWidth * mHeight  * 2 ;
 
+    const DWORD vertexWidth = mWidth + 1 ;
+    const DWORD vertexHeight = mHeight + 1;
     mRootNode = std::make_shared<mydx::Node>(*createNode(nullptr, 
-                                                0, mWidth - 1 , 
-                                                mWidth  * (mHeight - 1), mWidth  * mHeight ));
+                                                0, mWidth,
+                                                vertexWidth  * (vertexHeight - 1), vertexWidth * vertexHeight ));
 
     size_t size = static_cast<size_t>(mFaceCount) * 3;
     mUpdateIndexTable.resize(size, 0);
@@ -33,7 +35,8 @@ bool mydx::QuardTreeVertexIndex::Update(Graphics& graphics) noexcept
 
 
     UINT faceCount = 0;
-
+    size_t size = mUpdateIndexTable.size();
+    mUpdateIndexTable.resize(size);
     for (auto& node : mDrawableNode)
     {
             faceCount += updateIndexTable( faceCount * 3,
@@ -76,18 +79,22 @@ bool mydx::QuardTreeVertexIndex::divideSection(Node* node) noexcept
         return false;
     }
     // 지정한 depth보다 클 경우
-
+    if (node->GetDepth() > mDepth)
+    {
+        node->SetIsLeafNode(true);
+        return false;
+    }
 
     //
     //         top
     //left  center right
     //      bottom
     //
-    const unsigned long center = (cornerIndexTable[topLeftIndex] + widthSplitSize) +  heightSplitSize * mWidth;
+    const unsigned long center = (cornerIndexTable[topLeftIndex] + widthSplitSize) +  heightSplitSize * (mWidth +1);
     const unsigned long top = cornerIndexTable[topLeftIndex] + widthSplitSize;
     const unsigned long bottom = cornerIndexTable[bottomLeftIndex] + widthSplitSize;
-    const unsigned long left = cornerIndexTable[topLeftIndex] + heightSplitSize * mWidth;
-    const unsigned long right = cornerIndexTable[topRightIndex] + heightSplitSize * mWidth;
+    const unsigned long left = cornerIndexTable[topLeftIndex] + heightSplitSize * (mWidth + 1);
+    const unsigned long right = cornerIndexTable[topRightIndex] + heightSplitSize * (mWidth + 1);
 
     //4개 자식 노드 생성
     auto& childNodeTable = node->GetChildNodeTable();
@@ -150,11 +157,14 @@ void	mydx::QuardTreeVertexIndex::ComputeBoungigBox(Node*  node) noexcept
     ::XMMATRIX transform = ::XMMatrixIdentity();
     boundingboxData.Center = (boundingboxData.Max + boundingboxData.Min) / 2.0f;
     transform = ::XMMatrixMultiply(transform, ::XMMatrixTranslationFromVector(boundingboxData.Center));
-    boundingboxData.Axis[0] = ::XMVector3Normalize(::XMVector3TransformCoord(::XMVectorSet(1.0f, 0.0f, 0.0f, 0.0f), transform));
+    /*boundingboxData.Axis[0] = ::XMVector3Normalize(::XMVector3TransformCoord(::XMVectorSet(1.0f, 0.0f, 0.0f, 0.0f), transform));
     boundingboxData.Axis[1] = ::XMVector3Normalize(::XMVector3TransformCoord(::XMVectorSet(0.0f, 1.0f, 0.0f, 0.0f), transform));
-    boundingboxData.Axis[2] = ::XMVector3Normalize(::XMVector3TransformCoord(::XMVectorSet(0.0f, 0.0f, 1.0f, 0.0f), transform));
+    boundingboxData.Axis[2] = ::XMVector3Normalize(::XMVector3TransformCoord(::XMVectorSet(0.0f, 0.0f, 1.0f, 0.0f), transform));*/
+    boundingboxData.Axis[0] = ::XMVectorSet(1.0f, 0.0f, 0.0f, 0.0f);
+    boundingboxData.Axis[1] = ::XMVectorSet(0.0f, 1.0f, 0.0f, 0.0f);
+    boundingboxData.Axis[2] = ::XMVectorSet(0.0f, 0.0f, 1.0f, 0.0f);
     boundingboxData.Extent[0] = ::XMVectorSet(::XMVectorGetX(boundingboxData.Max) - ::XMVectorGetX(boundingboxData.Center), 0.0f, 0.0f, 0.0f);
-    boundingboxData.Extent[1] = ::XMVectorSet(0.0f, ::XMVectorGetY(boundingboxData.Max) - ::XMVectorGetY(boundingboxData.Center), 0.0f, 0.0f);
+    boundingboxData.Extent[1] = ::XMVectorSet(0.0f, 0.0f, 0.0f, 0.0f);
     boundingboxData.Extent[2] = ::XMVectorSet(0.0f, 0.0f, ::XMVectorGetZ(boundingboxData.Max) - ::XMVectorGetZ(boundingboxData.Center), 0.0f);
     node->SetBoundingBox(boundingboxData);
 }

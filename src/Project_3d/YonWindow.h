@@ -7,6 +7,7 @@
 #include "Keyboard.h"
 #include "Mouse.h"
 
+extern HWND g_hwnd;
 class YonWindow
 {
 public:

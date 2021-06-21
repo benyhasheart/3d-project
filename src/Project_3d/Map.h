@@ -47,7 +47,7 @@ namespace mydx
 		DirectX::XMVECTOR computeFaceNormal(DirectX::XMVECTOR vertex0, DirectX::XMVECTOR vertex1, DirectX::XMVECTOR vertex2);
 
 	protected:
-		std::shared_ptr<VertexBuffer> mVertexBuffer;
+		std::shared_ptr<VertexBuffer<VertexData>> mVertexBuffer;
 		std::shared_ptr<IndexBuffer> mIndexBuffer;
 		std::vector<VertexData> mVertexData;
 		std::vector<DWORD>	mIndices;

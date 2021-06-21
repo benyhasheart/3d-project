@@ -65,33 +65,23 @@ DirectX::XMMATRIX Box::GetTransform() const noexcept
 
 bool Box::Initialize(Graphics& graphics) noexcept
 {
-	struct VerTex
+
+
+	const std::vector<mydx::VertexData> vertices =
 	{
-		struct
-		{
-			float x, y, z, w;
-		} position;
-		struct
-		{
-			float x, y;
-		} taxtureCoord;
+		{::XMFLOAT4(-1.0f,-1.0f,-1.0f,1.0f), ::XMFLOAT4(0.0f,0.0f,0.0f,1.0f),::XMFLOAT4(0.0f,0.0f,0.0f,1.0f), ::XMFLOAT4(0.0f, 1.0f,0.0f,1.0f) },
+		{ ::XMFLOAT4(1.0f,-1.0f,-1.0f,1.0f), ::XMFLOAT4(0.0f,0.0f,0.0f,1.0f),::XMFLOAT4(0.0f,0.0f,0.0f,1.0f), ::XMFLOAT4(1.0f, 1.0f,0.0f,1.0f) },
+		{ ::XMFLOAT4(-1.0f,1.0f,-1.0f,1.0f), ::XMFLOAT4(0.0f,0.0f,0.0f,1.0f),::XMFLOAT4(0.0f,0.0f,0.0f,1.0f), ::XMFLOAT4(0.0f, 0.0f,0.0f,1.0f) },
+		{ ::XMFLOAT4(1.0f,1.0f,-1.0f,1.0f),	 ::XMFLOAT4(0.0f,0.0f,0.0f,1.0f),::XMFLOAT4(0.0f,0.0f,0.0f,1.0f), ::XMFLOAT4(1.0f, 0.0f,0.0f,1.0f) },
+		{ ::XMFLOAT4(-1.0f,-1.0f,1.0f,1.0f), ::XMFLOAT4(0.0f,0.0f,0.0f,1.0f),::XMFLOAT4(0.0f,0.0f,0.0f,1.0f), ::XMFLOAT4(0.0f, 1.0f,0.0f,1.0f) },
+		{ ::XMFLOAT4(1.0f,-1.0f,1.0f,1.0f),  ::XMFLOAT4(0.0f,0.0f,0.0f,1.0f),::XMFLOAT4(0.0f,0.0f,0.0f,1.0f), ::XMFLOAT4(1.0f, 1.0f,0.0f,1.0f) },
+		{ ::XMFLOAT4(-1.0f,1.0f,1.0f,1.0f),  ::XMFLOAT4(0.0f,0.0f,0.0f,1.0f),::XMFLOAT4(0.0f,0.0f,0.0f,1.0f), ::XMFLOAT4(0.0f, 0.0f,0.0f,1.0f) },
+		{ ::XMFLOAT4(1.0f,1.0f,1.0f,1.0f),   ::XMFLOAT4(0.0f,0.0f,0.0f,1.0f),::XMFLOAT4(0.0f,0.0f,0.0f,1.0f), ::XMFLOAT4(1.0f, 0.0f,0.0f,1.0f) },
 	};
 
-	const std::vector<VerTex> vertices =
-	{
-		{ -1.0f,-1.0f,-1.0f,1.0f, 0.0f, 1.0f },
-		{ 1.0f,-1.0f,-1.0f,1.0f, 1.0f, 1.0f},
-		{ -1.0f,1.0f,-1.0f,1.0f, 0.0f, 0.0f},
-		{ 1.0f,1.0f,-1.0f,1.0f, 1.0f, 0.0f},
-		{ -1.0f,-1.0f,1.0f,1.0f, 0.0f, 1.0f},
-		{ 1.0f,-1.0f,1.0f,1.0f, 1.0f, 1.0f},
-		{ -1.0f,1.0f,1.0f,1.0f, 0.0f, 0.0f},
-		{ 1.0f,1.0f,1.0f,1.0f, 1.0f, 0.0f},
-	};
-
-	std::vector<VerTex> vertexData;
-
-	AddBind(std::make_shared<VertexBuffer>(graphics, vertices));
+	std::vector<mydx::VertexData> vertexData;
+	 mVertexBuffer = std::make_shared<VertexBuffer<mydx::VertexData>>(graphics, vertices);
+	AddBind(mVertexBuffer);
 
 	const std::vector<DWORD> indices =
 	{
@@ -103,7 +93,8 @@ bool Box::Initialize(Graphics& graphics) noexcept
 		0,1,4, 1,5,4
 	};
 
-	AddIndexBuffer(std::make_shared<IndexBuffer>(graphics, indices));
+	mIndexBuffer = std::make_shared<IndexBuffer>(graphics, indices);
+	AddIndexBuffer(mIndexBuffer);
 
 	auto mVertexShaderClass = std::make_shared<VertexShader>(graphics, L"VertexShader.vsh", "main");
 	auto bytecodeBlob = mVertexShaderClass->GetBytecodeBlob();
@@ -114,7 +105,9 @@ bool Box::Initialize(Graphics& graphics) noexcept
 	const std::vector< D3D11_INPUT_ELEMENT_DESC> layoutList =
 	{
 		{ "POSITION", 0, DXGI_FORMAT_R32G32B32A32_FLOAT, 0, 0, D3D11_INPUT_PER_VERTEX_DATA, 0},
-		{ "TEXCOORD", 0, DXGI_FORMAT_R32G32_FLOAT, 0, 16, D3D11_INPUT_PER_VERTEX_DATA, 0},
+		{ "COLOR", 0, DXGI_FORMAT_R32G32B32A32_FLOAT, 0, 16, D3D11_INPUT_PER_VERTEX_DATA, 0},
+		{ "NORMAL", 0, DXGI_FORMAT_R32G32B32A32_FLOAT, 0, 32, D3D11_INPUT_PER_VERTEX_DATA, 0},
+		{ "TEXTURECOORD", 0, DXGI_FORMAT_R32G32B32A32_FLOAT, 0, 48, D3D11_INPUT_PER_VERTEX_DATA, 0},
 	};
 
 	AddBind(std::make_shared<InputLayout>(graphics, layoutList, bytecodeBlob));
@@ -185,4 +178,14 @@ const DirectX::XMVECTOR Box::GetTranslation() const noexcept
 const mydx::BoundingBox& Box::GetBoundingBox() const noexcept
 {
 	return mBoundingBox;
+}
+
+std::shared_ptr<VertexBuffer<mydx::VertexData>>& Box::GetVertexBuffer() noexcept
+{
+	return mVertexBuffer;
+}
+
+std::shared_ptr<IndexBuffer>& Box::GetIndexBuffer() noexcept
+{
+	return mIndexBuffer;
 }

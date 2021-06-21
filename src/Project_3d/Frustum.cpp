@@ -162,17 +162,18 @@ mydx::eCollisionResult mydx::Frustum::InspectOBBAndPlane(const BoundingBoxData& 
     // d = N dot ( normal(axis) * extend)xyz
     for (auto plane : mPlane)
     {
+        distance = {};
         //x axis
         direction = boxData.Axis[0] * boxData.Extent[0];
-        distance = plane.x * ::XMVectorGetX(direction) + plane.y * ::XMVectorGetY(direction) + plane.z * ::XMVectorGetZ(direction);
+        distance += fabs(plane.x * ::XMVectorGetX(direction) + plane.y * ::XMVectorGetY(direction) + plane.z * ::XMVectorGetZ(direction));
 
         //y axis
-        direction += boxData.Axis[1] * boxData.Extent[1];
-        distance = plane.x * ::XMVectorGetX(direction) + plane.y * ::XMVectorGetY(direction) + plane.z * ::XMVectorGetZ(direction);
+        direction = boxData.Axis[1] * boxData.Extent[1];
+        distance += fabs(plane.x * ::XMVectorGetX(direction) + plane.y * ::XMVectorGetY(direction) + plane.z * ::XMVectorGetZ(direction));
 
         //z axis
-        direction += boxData.Axis[2] * boxData.Extent[2];
-        distance = plane.x * ::XMVectorGetX(direction) + plane.y * ::XMVectorGetY(direction) + plane.z * ::XMVectorGetZ(direction);
+        direction = boxData.Axis[2] * boxData.Extent[2];
+        distance += fabs(plane.x * ::XMVectorGetX(direction) + plane.y * ::XMVectorGetY(direction) + plane.z * ::XMVectorGetZ(direction));
 
         //plane to center distance
 
@@ -186,7 +187,7 @@ mydx::eCollisionResult mydx::Frustum::InspectOBBAndPlane(const BoundingBoxData& 
             result = mydx::eCollisionResult::Spanning;
         }
 
-        if ( planeToCenter + 1.0f < -distance)
+        if ( planeToCenter + 10.0f < -distance)
         {
             return mydx::eCollisionResult::Back;
         }
@@ -265,7 +266,7 @@ bool mydx::Frustum::Initialize(Graphics& graphics) noexcept
     };
 
 
-    AddBind(std::make_unique<VertexBuffer>(graphics, vertices));
+    AddBind(std::make_unique<VertexBuffer<VerTex>>(graphics, vertices));
 
     const std::vector<DWORD> indices =
     {

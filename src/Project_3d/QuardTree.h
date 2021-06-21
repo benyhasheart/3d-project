@@ -30,6 +30,9 @@ namespace mydx
 		void SetCamera(Camera* camera)noexcept;
 		void SetMap(Map* map)noexcept;
 
+		void SetDepth(int depth) noexcept;
+		int GetDepth() noexcept;
+
 		std::vector<Node*>& GetDrawableNodeTable() noexcept;
 		std::vector<DWORD>& GetUpdateIndexTable() noexcept;
 	protected:
@@ -53,6 +56,7 @@ namespace mydx
 		Map* mMap;
 		DWORD mWidth;
 		DWORD mHeight;
+		int mDepth;
 		unsigned int mFaceCount;
 	};
 }

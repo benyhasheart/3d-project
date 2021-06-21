@@ -2,7 +2,18 @@
 #include "Drawable.h"
 #include "BindableBase.h"
 #include "BoundingBox.h"
-
+#include "CommonDataStruct.h"
+struct VerTex
+{
+	struct
+	{
+		float x, y, z, w;
+	} position;
+	struct
+	{
+		float x, y;
+	} taxtureCoord;
+};
 class Box : public Drawable
 {
 public:
@@ -33,7 +44,8 @@ public:
 
 	const mydx::BoundingBox& GetBoundingBox() const noexcept;
 
-
+	std::shared_ptr<VertexBuffer<mydx::VertexData>>& GetVertexBuffer() noexcept;
+	std::shared_ptr<IndexBuffer>& GetIndexBuffer() noexcept;
 private:
 	DirectX::XMMATRIX mTransform;
 
@@ -48,5 +60,8 @@ private:
 	DirectX::XMVECTOR mQuaternionRotation;
 
 	mydx::BoundingBox mBoundingBox;
+
+	std::shared_ptr<VertexBuffer<mydx::VertexData>> mVertexBuffer;
+	std::shared_ptr<IndexBuffer> mIndexBuffer;
 };
 

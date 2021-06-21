@@ -1,5 +1,6 @@
 #include "YonWindow.h"
 
+HWND g_hwnd;
 YonWindow::YonWindow()
 {
 	mhInstance = NULL;
@@ -68,6 +69,7 @@ bool YonWindow::InitWindow(HINSTANCE hInstance, const TCHAR* windowTitle, int nC
     mGFX = std::make_unique<Graphics>();
     mGFX->Initialize(mhWnd);
 
+    g_hwnd = mhWnd;
     ShowWindow(mhWnd, nCmdShow);
 
     return false;

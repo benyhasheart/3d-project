@@ -14,11 +14,18 @@ IndexBuffer::IndexBuffer(Graphics& graphics, const std::vector<DWORD> indices)
 	D3D11_SUBRESOURCE_DATA indexSubData;
 	indexSubData.pSysMem = indices.data();
 	graphics.GetDevice()->CreateBuffer(&indexDesc, &indexSubData, mIndexBuffer.GetAddressOf());
+	
+	mIndexTable = indices;
 }
 
 UINT IndexBuffer::GetCount() const
 {
 	return mCount;
+}
+
+std::vector<DWORD>& IndexBuffer::GetIndexTable() noexcept
+{
+	return mIndexTable;
 }
 
 void IndexBuffer::Bind(Graphics& graphics) noexcept

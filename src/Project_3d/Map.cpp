@@ -23,7 +23,7 @@ mydx::Map::Map(Graphics& graphics, MapDesc& mapDesc, const TCHAR* textureFileNam
         textureFileName = L"../../data/etcTexture/desert.jpg";
     }
 
-    AddBind(std::make_shared<VertexBuffer>(graphics, mVertexData));
+    AddBind(std::make_shared<VertexBuffer<VertexData>>(graphics, mVertexData));
 
     mIndexBuffer = std::make_shared<IndexBuffer>(graphics, mIndices);
     AddIndexBuffer(mIndexBuffer);

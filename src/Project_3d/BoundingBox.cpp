@@ -81,7 +81,7 @@ bool mydx::BoundingBox::Initialize(Graphics& graphics) noexcept
 		0,1,4, 1,5,4
 	};
 
-	AddBind(std::make_shared<VertexBuffer>(graphics, vertices));
+	AddBind(std::make_shared<VertexBuffer<VerTex>>(graphics, vertices));
 
 	
 
@@ -170,8 +170,8 @@ void mydx::BoundingBox::CreateBoundingBox(DirectX::XMVECTOR min, DirectX::XMVECT
 
 
 	mBoundingBoxData.Extent[0] = ::XMVector3Dot( mBoundingBoxData.Axis[0], halfDistance);
-	mBoundingBoxData.Extent[1] = ::XMVector3Dot(mBoundingBoxData.Axis[0], halfDistance);
-	mBoundingBoxData.Extent[2] = ::XMVector3Dot(mBoundingBoxData.Axis[0], halfDistance);
+	mBoundingBoxData.Extent[1] = ::XMVector3Dot(mBoundingBoxData.Axis[1], halfDistance);
+	mBoundingBoxData.Extent[2] = ::XMVector3Dot(mBoundingBoxData.Axis[2], halfDistance);
 
 	//test
 

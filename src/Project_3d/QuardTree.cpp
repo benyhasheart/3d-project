@@ -16,7 +16,8 @@ mydx::QuardTree::QuardTree()
     mMap(nullptr),
     mWidth(0.0f),
     mHeight(0.0f),
-    mFaceCount(0)
+    mFaceCount(0),
+    mDepth(10)
 {
 }
 
@@ -51,6 +52,26 @@ bool mydx::QuardTree::Update(Graphics& graphics) noexcept
 {
     mDrawableNode.clear();
     //mDrawableNode.push_back(mRootNode.get());
+   /* mDrawableNode.push_back(mRootNode.get()->GetChildNodeTable()[0].get());
+    mDrawableNode.push_back(mRootNode.get()->GetChildNodeTable()[1].get());
+    mDrawableNode.push_back(mRootNode.get()->GetChildNodeTable()[2].get());
+    mDrawableNode.push_back(mRootNode.get()->GetChildNodeTable()[3].get());*/
+   /* mDrawableNode.push_back(mRootNode.get()->GetChildNodeTable()[0]->GetChildNodeTable()[0].get());
+    mDrawableNode.push_back(mRootNode.get()->GetChildNodeTable()[0]->GetChildNodeTable()[1].get());
+    mDrawableNode.push_back(mRootNode.get()->GetChildNodeTable()[0]->GetChildNodeTable()[2].get());
+    mDrawableNode.push_back(mRootNode.get()->GetChildNodeTable()[0]->GetChildNodeTable()[3].get());
+    mDrawableNode.push_back(mRootNode.get()->GetChildNodeTable()[1]->GetChildNodeTable()[0].get());
+    mDrawableNode.push_back(mRootNode.get()->GetChildNodeTable()[1]->GetChildNodeTable()[1].get());
+    mDrawableNode.push_back(mRootNode.get()->GetChildNodeTable()[1]->GetChildNodeTable()[2].get());
+    mDrawableNode.push_back(mRootNode.get()->GetChildNodeTable()[1]->GetChildNodeTable()[3].get());
+    mDrawableNode.push_back(mRootNode.get()->GetChildNodeTable()[2]->GetChildNodeTable()[0].get());
+    mDrawableNode.push_back(mRootNode.get()->GetChildNodeTable()[2]->GetChildNodeTable()[1].get());
+    mDrawableNode.push_back(mRootNode.get()->GetChildNodeTable()[2]->GetChildNodeTable()[2].get());
+    mDrawableNode.push_back(mRootNode.get()->GetChildNodeTable()[2]->GetChildNodeTable()[3].get());
+    mDrawableNode.push_back(mRootNode.get()->GetChildNodeTable()[3]->GetChildNodeTable()[0].get());
+    mDrawableNode.push_back(mRootNode.get()->GetChildNodeTable()[3]->GetChildNodeTable()[1].get());
+    mDrawableNode.push_back(mRootNode.get()->GetChildNodeTable()[3]->GetChildNodeTable()[2].get());
+    mDrawableNode.push_back(mRootNode.get()->GetChildNodeTable()[3]->GetChildNodeTable()[3].get());*/
     findDrawableNode(mRootNode.get());
     return true;
 }
@@ -82,6 +103,16 @@ void mydx::QuardTree::SetCamera(Camera* camera) noexcept
 void mydx::QuardTree::SetMap(Map* map) noexcept
 {
     mMap = map;
+}
+
+void mydx::QuardTree::SetDepth(int depth) noexcept
+{
+    mDepth = depth;
+}
+
+int mydx::QuardTree::GetDepth() noexcept
+{
+    return mDepth;
 }
 
 std::vector<mydx::Node*>& mydx::QuardTree::GetDrawableNodeTable() noexcept
@@ -171,11 +202,13 @@ mydx::Node* mydx::QuardTree::createNode(Node* parentNode, float minX, float maxX
     mydx::BoundingBoxData boundingBox;
     boundingBox.Min = ::XMVectorSet(minX, 0.0f, minZ, 0.0f);
     boundingBox.Max = ::XMVectorSet(maxX, 0.0f, maxZ, 0.0f);
-
+    ::XMMATRIX transform = ::XMMatrixIdentity();
+    boundingBox.Center = (boundingBox.Max + boundingBox.Min) / 2.0f;
+    transform = ::XMMatrixMultiply(transform, ::XMMatrixTranslationFromVector(boundingBox.Center));
     boundingBox.Center = (boundingBox.Max + boundingBox.Min ) / 2.0f;
-    boundingBox.Axis[0] = ::XMVector3Normalize(::XMVectorMultiply(boundingBox.Center,::XMVectorSet(1.0f, 0.0f, 0.0f, 0.0f)));
-    boundingBox.Axis[1] = ::XMVectorSet(0.0f, 1.0f, 0.0f, 0.0f);
-    boundingBox.Axis[2] = ::XMVectorSet(0.0f, 0.0f, 1.0f, 0.0f);
+    boundingBox.Axis[0] = ::XMVector3Normalize(::XMVector3TransformCoord(::XMVectorSet(1.0f, 0.0f, 0.0f, 0.0f), transform));
+    boundingBox.Axis[1] = ::XMVector3Normalize(::XMVector3TransformCoord(::XMVectorSet(0.0f, 1.0f, 0.0f, 0.0f), transform));
+    boundingBox.Axis[2] = ::XMVector3Normalize(::XMVector3TransformCoord(::XMVectorSet(0.0f, 0.0f, 1.0f, 0.0f), transform));
     boundingBox.Extent[0] = ::XMVectorSet(::XMVectorGetX(boundingBox.Max) - ::XMVectorGetX(boundingBox.Center), 0.0f,0.0f,0.0f );
     boundingBox.Extent[1] = ::XMVectorSet(0.0f, ::XMVectorGetY(boundingBox.Max) - ::XMVectorGetY(boundingBox.Center),  0.0f, 0.0f);
     boundingBox.Extent[2] = ::XMVectorSet(0.0f, 0.0f, ::XMVectorGetZ(boundingBox.Max) - ::XMVectorGetZ(boundingBox.Center), 0.0f);
@@ -198,7 +231,17 @@ bool mydx::QuardTree::findDrawableNode(Node* node) noexcept
     mydx::eCollisionResult eResult = {};
 
     eResult = mCamera->GetFrustum().InspectOBBAndPlane(node->GetBoundingBox());
-
+   /* if (node->GetDepth() >= 1 && eResult != eCollisionResult::Back)
+    {
+        mDrawableNode.push_back(node);
+        return true;
+    }*/
+    // 리프노드이면서 걸쳐있는 경우 포함.
+    if (node->GetIsLeafNode() && eResult != eCollisionResult::Back)
+    {
+        mDrawableNode.push_back(node);
+        return true;
+    }
     // 완전 포함
     if (eResult == eCollisionResult::Front)
     {
@@ -208,17 +251,13 @@ bool mydx::QuardTree::findDrawableNode(Node* node) noexcept
     // 걸쳐져있는 경우
     if (eResult == eCollisionResult::Spanning)
     {
+        
         for (auto& childNode : node->GetChildNodeTable())
         {
             findDrawableNode(childNode.get());
         }
     }
     
-   /* if (eResult == eCollisionResult::Back)
-    {
-        return false;
-    }*/
-
     return true;
 }
 
@@ -226,15 +265,15 @@ int mydx::QuardTree::updateIndexTable(DWORD currentIndex, DWORD topLeft, DWORD t
 {
     
     int faceCount = 0;
-
-    DWORD startRow = topLeft / mWidth;
-    DWORD endRow = bottomLeft / mWidth;
+    UINT colVertexCount = mWidth + 1;
+    DWORD startRow = topLeft / colVertexCount;
+    DWORD endRow = bottomLeft / colVertexCount;
    // DWORD endRow = 150;
 
-    DWORD startCol = topLeft % mWidth;
-    DWORD endCol = topRight % mWidth;
-    //UINT rowVertexCount = height + 1;
-    UINT colVertexCount = mWidth + 1;
+    DWORD startCol = topLeft % colVertexCount;
+    DWORD endCol = topRight % colVertexCount;
+    UINT rowVertexCount = mHeight + 1;
+    
 
     for (DWORD row = startRow; row < endRow; row++)
     {

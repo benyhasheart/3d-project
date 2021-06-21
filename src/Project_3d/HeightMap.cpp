@@ -107,7 +107,7 @@ mydx::HeightMap::HeightMap(Graphics& graphics, const TCHAR* textureFileName)
 	createVertexNoramlLookupTable();
 	updateVertexNormal();
 
-	AddBind(std::make_shared<VertexBuffer>(graphics, mVertexData));
+	AddBind(std::make_shared<VertexBuffer<VertexData>>(graphics, mVertexData));
 	mIndexBuffer = std::make_shared<IndexBuffer>(graphics, mIndices);
 	AddIndexBuffer(mIndexBuffer);
 

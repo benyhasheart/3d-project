@@ -16,9 +16,10 @@ public:
 
 public:
 	UINT GetCount() const ;
-
+	std::vector<DWORD>& GetIndexTable() noexcept;
 private:
 	UINT mCount;
 	Microsoft::WRL::ComPtr<ID3D11Buffer> mIndexBuffer;
+	std::vector<DWORD> mIndexTable;
 };
 

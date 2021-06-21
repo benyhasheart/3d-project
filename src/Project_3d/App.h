@@ -19,6 +19,7 @@
 #include "BoundingBox.h"
 #include "HeightMap.h"
 #include "QuardTreeVertexIndex.h"
+#include "Select.h"
 
 
 
@@ -47,17 +48,6 @@ struct ViewPerspectiveConstantData
 	DirectX::XMMATRIX matrixProjection;
 };
 
-//struct VerTex
-//{
-//	float x, y, z, w;
-//	float u, v;
-//};
-
-struct VerTex
-{
-	dxmath::Vector4 vertex;
-	dxmath::Vector2 texCood;
-};
 
 class App : public IGameLoop
 {
@@ -86,7 +76,7 @@ public:
 	Microsoft::WRL::ComPtr<ID3D11PixelShader> mPixelShader;
 	Microsoft::WRL::ComPtr<ID3D11RasterizerState> mRasterizerStateWireFrame;
 	Microsoft::WRL::ComPtr<ID3D11RasterizerState> mRasterizerStateSolid;
-	std::unique_ptr<VertexBuffer> mVertexBufferClass;
+	//std::unique_ptr<VertexBuffer<VerTex>> mVertexBufferClass;
 	std::unique_ptr<IndexBuffer> mIndexBufferClass;
 
 
@@ -107,6 +97,7 @@ public:
 	std::shared_ptr<mydx::HeightMap> mHeightMap;
 	std::unique_ptr<mydx::QuardTree> mQuardTree;
 	std::unique_ptr<mydx::QuardTreeVertexIndex> mQuardTreeVertexIndex;
+	std::unique_ptr<mydx::Select> mSelect;
 
 	Microsoft::WRL::ComPtr<ID3D11Texture2D> mTexture1;
 	Microsoft::WRL::ComPtr<ID3D11Texture2D> mTexture2;

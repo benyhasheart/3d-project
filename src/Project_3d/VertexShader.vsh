@@ -29,20 +29,31 @@ cbuffer viewPerspectiveConstantBuffer
 //	float4 color : packoffset(c0);
 //};
 
-struct VS_OUTPUT
+//struct VS_OUTPUT
+//{
+//	float4 position : SV_Position; 
+//	float4 textureCoord : TEXCOORD0; 
+//};
+struct VS_input
 {
-	float4 position : SV_Position; 
-	float2 textureCoord : TEXCOORD0; 
+	float4 position :POSITION;
+	float4 color : COLOR;
+	float4 normal : NORMAL;
+	float4 texcoord : TEXTURECOORD;
 };
 
-VS_OUTPUT main( float4 pos : POSITION, float2 texcood : TEXCOORD )
+struct VS_output
 {
-	VS_OUTPUT data;
-	data.position = pos;
-	data.position = mul(pos, matrixWorld);
-	//data.position = mul(data.position, matrixView);
-	//data.position = mul(data.position, matrixProjection);
-	data.textureCoord = texcood;
-	return data;
-	//return float4(pos.x,pos.y,pos.z,1.0f);
+	float4 position :SV_POSITION;
+	float4 color : COLOR;
+	float4 normal : NORMAL;
+	float4 texcoord : TEXCOORD0;
+};
+
+VS_output main( VS_input input )
+{
+	VS_output outputData;
+	outputData = input;
+	outputData.position = mul(input.position, matrixWorld);
+	return outputData;
 }

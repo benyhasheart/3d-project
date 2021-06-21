@@ -253,44 +253,7 @@ int App::Excute()
 		{1.0f, -1.0f, 0.5f,1.0f,3.0f,3.0f},
 		{-1.0f, -1.0f, 0.5f,1.0f,0.0f,3.0f},
 	};*/
-	 std::vector<VerTex> vertexData;
-
-	 VerTex vertex;
-	 vertex.vertex = dxmath::Vector4(-1.0f, 1.0f, 0.5f, 1.0f);
-	 vertex.texCood = dxmath::Vector2(0.0f, 0.0f);
-	 vertexData.push_back(vertex);
-
-	 vertex.vertex = dxmath::Vector4(1.0f, 1.0f, 0.5f, 1.0f);
-	 vertex.texCood = dxmath::Vector2(1.0f, 0.0f);
-	 vertexData.push_back(vertex);
-
-	 vertex.vertex = dxmath::Vector4(1.0f, -1.0f, 0.5f, 1.0f);
-	 vertex.texCood = dxmath::Vector2(1.0f, 1.0f);
-	 vertexData.push_back(vertex);
-
-	 vertex.vertex = dxmath::Vector4(-1.0f, -1.0f, 0.5f, 1.0f);
-	 vertex.texCood = dxmath::Vector2(0.0f, 1.0f);
-	 vertexData.push_back(vertex);
-
-	 mVertexBufferClass = std::make_unique<VertexBuffer>(mWindow.GetGFX(), vertexData);
-
-	 std::vector<DWORD> indices =
-	 {
-		 0,1,2,
-		 0,2,3,
-	 };
-	 mIndexBufferClass = std::make_unique<IndexBuffer>(mWindow.GetGFX(), indices);
-
-	 const std::vector< D3D11_INPUT_ELEMENT_DESC> layoutList =
-	 {
-		 { "POSITION", 0, DXGI_FORMAT_R32G32B32A32_FLOAT, 0, 0, D3D11_INPUT_PER_VERTEX_DATA, 0},
-		 { "TEXCOORD", 0, DXGI_FORMAT_R32G32_FLOAT, 0, 16, D3D11_INPUT_PER_VERTEX_DATA, 0},
-	 };
-
-	 mInputLayoutClass = std::make_unique<InputLayout>(mWindow.GetGFX(), layoutList, mVertexShaderClass->GetBytecodeBlob());
-
-
-	 mTexture = std::make_unique<Texture>(mWindow.GetGFX(), L"../../data/etcTexture/desert.jpg");
+	 
 	 /*ID3D11Resource* resource;
 	 hr = DirectX::CreateWICTextureFromFile(mWindow.GetGFX().GetDevice(), L"../../data/etcTexture/desert.jpg", &resource, mShaderResourceView.GetAddressOf(), 0u);
 
@@ -308,23 +271,23 @@ int App::Excute()
 
 #pragma region	SamplerState
 	 //create SamplerState
-	 mSamplerDesc = {};
-	 mSamplerDesc.AddressU = static_cast<D3D11_TEXTURE_ADDRESS_MODE>(2);
-	 mSamplerDesc.AddressV = static_cast<D3D11_TEXTURE_ADDRESS_MODE>(2);
-	 mSamplerDesc.AddressW = static_cast<D3D11_TEXTURE_ADDRESS_MODE>(2);
-	 mSamplerDesc.BorderColor[0] = 1.0f;
-	 mSamplerDesc.BorderColor[1] = 0.0f;
-	 mSamplerDesc.BorderColor[2] = 0.0f;
-	 mSamplerDesc.BorderColor[3] = 1.0f;
-	 mSamplerDesc.MaxAnisotropy = 16;
+	 //mSamplerDesc = {};
+	 //mSamplerDesc.AddressU = static_cast<D3D11_TEXTURE_ADDRESS_MODE>(2);
+	 //mSamplerDesc.AddressV = static_cast<D3D11_TEXTURE_ADDRESS_MODE>(2);
+	 //mSamplerDesc.AddressW = static_cast<D3D11_TEXTURE_ADDRESS_MODE>(2);
+	 //mSamplerDesc.BorderColor[0] = 1.0f;
+	 //mSamplerDesc.BorderColor[1] = 0.0f;
+	 //mSamplerDesc.BorderColor[2] = 0.0f;
+	 //mSamplerDesc.BorderColor[3] = 1.0f;
+	 //mSamplerDesc.MaxAnisotropy = 16;
 
-	 unsigned int minmapCount = mTexture->GetShaderResourceViewDesc().Texture2D.MipLevels;
-	 mSamplerDesc.MinLOD = static_cast<float>(minmapCount);
-	 //mSamplerDesc.MinLOD = static_cast<float>(5);
-	 mSamplerDesc.MaxLOD = mSamplerDesc.MinLOD + 2;
-	 mSamplerDesc.Filter = D3D11_FILTER_MIN_MAG_MIP_LINEAR;
+	 //unsigned int minmapCount = mTexture->GetShaderResourceViewDesc().Texture2D.MipLevels;
+	 //mSamplerDesc.MinLOD = static_cast<float>(minmapCount);
+	 ////mSamplerDesc.MinLOD = static_cast<float>(5);
+	 //mSamplerDesc.MaxLOD = mSamplerDesc.MinLOD + 2;
+	 //mSamplerDesc.Filter = D3D11_FILTER_MIN_MAG_MIP_LINEAR;
 
-	 mWindow.GetGFX().GetDevice()->CreateSamplerState(&mSamplerDesc, mSamplerState.GetAddressOf());
+	 //mWindow.GetGFX().GetDevice()->CreateSamplerState(&mSamplerDesc, mSamplerState.GetAddressOf());
 
 #pragma endregion SamplerState
 
@@ -364,7 +327,7 @@ int App::Excute()
 	 //mCamera = std::make_unique<ModelViewCamera>();
 	 mCamera = std::make_unique<FirstPersonViewCamera>();
 	 mCamera->CreateViewMatrix(
-		 ::XMVectorSet(0.0f, 1.0f, -5.0f, 0.0f),
+		 ::XMVectorSet(0.0f, 10.0f, -5.0f, 0.0f),
 		 ::XMVectorSet(0.0f, 0.0f, 0.0f, 0.0f),
 		 ::XMVectorSet(0.0f, 1.0f, 0.0f, 0.0f));
 
@@ -437,7 +400,7 @@ int App::Excute()
 	 std::uniform_real_distribution<float> rdist(6.0f, 20.0f);
 
 	 mBoxes.reserve(20);
-	 for (int i = 0; i < 20; i++)
+	 /*for (int i = 0; i < 1; i++)
 	 {
 		 auto box = std::make_shared<Box>(
 				mWindow.GetGFX(),
@@ -445,11 +408,17 @@ int App::Excute()
 				::XMVECTOR({adist(rng),adist(rng) ,adist(rng)}), 
 				::XMVECTOR({ ddist(rng),ddist(rng) ,ddist(rng) }));
 		 mBoxes.emplace_back(box);
-	 }
+	 }*/
+	 auto box = std::make_shared<Box>(
+		 mWindow.GetGFX(),
+		 ::XMVECTOR({ 1.0f,1.0f,1.0f }),
+		 ::XMVECTOR({ 0.0f,0.0f,0.0f }),
+		 ::XMVECTOR({ 0.0f,0.0f,0.0f }));
+		 mBoxes.emplace_back(box);
 
 	 mydx::MapDesc mapDesc = {};
-	 mapDesc.ColCellCount = 1024u;
-	 mapDesc.RowCellCount = 768u;
+	 mapDesc.ColCellCount = 128;
+	 mapDesc.RowCellCount = 128;
 	 mapDesc.CellDistance = 1.0f;
 
 	 //mMap = std::make_unique<mydx::Map>(mWindow.GetGFX(), mapDesc, nullptr);
@@ -457,10 +426,14 @@ int App::Excute()
 	 //mQuardTree = std::make_unique<mydx::QuardTreeVertexIndex>();
 	 //mQuardTree->Build(8,8);
 	 mQuardTreeVertexIndex = std::make_unique<mydx::QuardTreeVertexIndex>();
+	 //mQuardTreeVertexIndex->SetDepth(1);
 	 mQuardTreeVertexIndex->SetMap(mHeightMap.get());
 	 mQuardTreeVertexIndex->Build(mHeightMap.get(), mHeightMap.get()->GetMapDesc().ColCellCount, mHeightMap.get()->GetMapDesc().RowCellCount);
 	 //mQuardTreeVertexIndex->Build(mHeightMap.get(), 8,8);
 	 mQuardTreeVertexIndex->SetCamera(mCamera.get());
+
+	 mSelect = std::make_unique<mydx::Select>();
+	 mSelect->SetCamera(mCamera.get());
 	 return false;
 }
 
@@ -633,6 +606,50 @@ int App::Excute()
 
 		 mCamera->SetPitchYawRoll(::XMLoadFloat4(&yaw));
 		 //mCamera->AddPitchYawRoll(::XMLoadFloat4(&yaw));
+
+		 mSelect->Update(mWindow.GetGFX());
+		 ::XMVECTOR endPoint = mSelect->GetRay().Direction * mSelect->GetRay().Extent;
+		 //인덱스 버퍼에 번호로 페이스에 버텍스 3개를 가지고 픽킹연산.
+		 for (auto box : mBoxes)
+		 {
+			 auto& indexTable = box->GetIndexBuffer()->GetIndexTable();
+			 auto& vertexTable = box->GetVertexBuffer()->GetVertexTable();
+
+			 for (UINT tableIndex = 0; tableIndex < indexTable.size(); )
+			 {
+				 ::XMFLOAT4 vertexPosition0 = vertexTable[indexTable[tableIndex]].position;
+				 ::XMFLOAT4 vertexPosition1 = vertexTable[indexTable[tableIndex + 1]].position;
+				 ::XMFLOAT4 vertexPosition2 = vertexTable[indexTable[tableIndex + 2]].position;
+
+				 //교점 체크
+				 if (mSelect->CheckInterSection(mSelect->GetRay().Origine, endPoint,
+					::XMLoadFloat4(&vertexPosition0),
+					 ::XMLoadFloat4(&vertexPosition1),
+					 ::XMLoadFloat4(&vertexPosition2)))
+				 {
+				 // 삼각형 내부에 포함되는지 체크
+					 if (mSelect->PointInPolygon(
+						 mSelect->GetIntersectingLineSegment(),
+						 ::XMLoadFloat4(&vertexPosition0),
+						 ::XMLoadFloat4(&vertexPosition1),
+						 ::XMLoadFloat4(&vertexPosition2)))
+					 {
+						 ::XMFLOAT4& vertexColor0 = vertexTable[indexTable[tableIndex]].color;
+						 ::XMFLOAT4& vertexColor1 = vertexTable[indexTable[tableIndex + 1]].color;
+						 ::XMFLOAT4& vertexColor2 = vertexTable[indexTable[tableIndex + 2]].color;
+						 vertexColor0.x = 1.0f;
+						 vertexColor1.x = 1.0f;
+						 vertexColor2.x = 1.0f;
+						 box->GetVertexBuffer()->Update(mWindow.GetGFX());
+						 break;
+					 }
+				 }
+				 
+
+				tableIndex += 3;
+			 }
+		 }
+		 mQuardTreeVertexIndex;
 	 }
 
 
@@ -645,7 +662,7 @@ int App::Excute()
 
 	 const auto oldRotationVector = mBoxShape->GetRotation();
 	 //mBoxShape->SetRotation(::XMVectorSet(t,0.0f,0.0f,0.0f));
-	 mBoxShape->Update(mWindow.GetGFX());
+	// mBoxShape->Update(mWindow.GetGFX());
 	 
 
 	 mBoundingBox->Update(mWindow.GetGFX());
@@ -670,6 +687,8 @@ int App::Excute()
 	 mHeightMap->UpdateIndexBuffer(mWindow.GetGFX(), mQuardTreeVertexIndex->GetUpdateIndexTable());
 	 mHeightMap->Update(mWindow.GetGFX());
 
+	
+
 	 return false;
 }
  bool App::Render()
@@ -678,7 +697,7 @@ int App::Excute()
 	  mWindow.GetGFX().GetDeviceContext()->OMSetDepthStencilState(mStencilState1.Get(), 1u);
 	 mCamera->Render(mWindow.GetGFX());
 
-	 mBoxShape->Render(mWindow.GetGFX());
+	// mBoxShape->Render(mWindow.GetGFX());
 	 mBoundingBox->Render(mWindow.GetGFX());
 
 
@@ -699,11 +718,11 @@ int App::Excute()
 	mCamera->SetViewMatrix(mTopViewCamera->GetViewMatrix());
 	mCamera->Update(mWindow.GetGFX());
 	mCamera->Render(mWindow.GetGFX());
-	if (mCamera->GetFrustum().InspectionPoint(mBoxShape->GetTranslation()))
+	/*if (mCamera->GetFrustum().InspectionPoint(mBoxShape->GetTranslation()))
 	{
 		mBoxShape->Update(mWindow.GetGFX());
 		mBoxShape->Render(mWindow.GetGFX());
-	}
+	}*/
 	
 	for (auto& box : mBoxes)
 	{
@@ -713,6 +732,8 @@ int App::Excute()
 		box->Update(mWindow.GetGFX());
 		box->Render(mWindow.GetGFX());
 	}
+	mHeightMap->Update(mWindow.GetGFX());
+	mHeightMap->Render(mWindow.GetGFX());
 	mCamera->SetViewMatrix(oldViewMatrix);
 	
 	//mBoundingBox->Update(mWindow.GetGFX());
@@ -720,9 +741,9 @@ int App::Excute()
 	//뷰포트, 카메라 초기화
 	mWindow.GetGFX().SetViewMatrix(oldViewMatrix);
 	mWindow.GetGFX().GetDeviceContext()->RSSetViewports(1, &mViewPort[0]);
-
-	//mMap->Render(mWindow.GetGFX());
+	mHeightMap->Update(mWindow.GetGFX());
 	mHeightMap->Render(mWindow.GetGFX());
+	//mHeightMap->Render(mWindow.GetGFX());
 	/*mWindow.GetGFX().GetDeviceContext()->RSSetState(mRasterizerStateWireFrame.Get());
 	mWindow.GetGFX().GetDeviceContext()->RSSetState(mRasterizerStateSolid.Get());*/
 
