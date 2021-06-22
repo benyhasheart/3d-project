@@ -191,7 +191,8 @@ int App::Excute()
 	 RSdesc.FillMode = D3D11_FILL_WIREFRAME;
 	 mWindow.GetGFX().GetDevice()->CreateRasterizerState(&RSdesc, mRasterizerStateWireFrame.GetAddressOf());
 
-	 mWindow.GetGFX().GetDeviceContext()->RSSetState(mRasterizerStateSolid.Get());
+	 //mWindow.GetGFX().GetDeviceContext()->RSSetState(mRasterizerStateSolid.Get());
+	 mWindow.GetGFX().GetDeviceContext()->RSSetState(mRasterizerStateWireFrame.Get());
 
 #pragma region LoadTextureFromFile
 
@@ -270,24 +271,24 @@ int App::Excute()
 #pragma endregion TextureMappingToObject
 
 #pragma region	SamplerState
-	 //create SamplerState
-	 //mSamplerDesc = {};
-	 //mSamplerDesc.AddressU = static_cast<D3D11_TEXTURE_ADDRESS_MODE>(2);
-	 //mSamplerDesc.AddressV = static_cast<D3D11_TEXTURE_ADDRESS_MODE>(2);
-	 //mSamplerDesc.AddressW = static_cast<D3D11_TEXTURE_ADDRESS_MODE>(2);
-	 //mSamplerDesc.BorderColor[0] = 1.0f;
-	 //mSamplerDesc.BorderColor[1] = 0.0f;
-	 //mSamplerDesc.BorderColor[2] = 0.0f;
-	 //mSamplerDesc.BorderColor[3] = 1.0f;
-	 //mSamplerDesc.MaxAnisotropy = 16;
+	
+	 mSamplerDesc = {};
+	 mSamplerDesc.AddressU = static_cast<D3D11_TEXTURE_ADDRESS_MODE>(2);
+	 mSamplerDesc.AddressV = static_cast<D3D11_TEXTURE_ADDRESS_MODE>(2);
+	 mSamplerDesc.AddressW = static_cast<D3D11_TEXTURE_ADDRESS_MODE>(2);
+	 mSamplerDesc.BorderColor[0] = 1.0f;
+	 mSamplerDesc.BorderColor[1] = 0.0f;
+	 mSamplerDesc.BorderColor[2] = 0.0f;
+	 mSamplerDesc.BorderColor[3] = 1.0f;
+	 mSamplerDesc.MaxAnisotropy = 16;
 
 	 //unsigned int minmapCount = mTexture->GetShaderResourceViewDesc().Texture2D.MipLevels;
 	 //mSamplerDesc.MinLOD = static_cast<float>(minmapCount);
 	 ////mSamplerDesc.MinLOD = static_cast<float>(5);
 	 //mSamplerDesc.MaxLOD = mSamplerDesc.MinLOD + 2;
-	 //mSamplerDesc.Filter = D3D11_FILTER_MIN_MAG_MIP_LINEAR;
+	 mSamplerDesc.Filter = D3D11_FILTER_MIN_MAG_MIP_LINEAR;
 
-	 //mWindow.GetGFX().GetDevice()->CreateSamplerState(&mSamplerDesc, mSamplerState.GetAddressOf());
+	 mWindow.GetGFX().GetDevice()->CreateSamplerState(&mSamplerDesc, mSamplerState.GetAddressOf());
 
 #pragma endregion SamplerState
 
@@ -417,22 +418,27 @@ int App::Excute()
 		 mBoxes.emplace_back(box);
 
 	 mydx::MapDesc mapDesc = {};
-	 mapDesc.ColCellCount = 128;
-	 mapDesc.RowCellCount = 128;
+	 mapDesc.ColCellCount = 8;
+	 mapDesc.RowCellCount = 8;
 	 mapDesc.CellDistance = 1.0f;
 
-	 //mMap = std::make_unique<mydx::Map>(mWindow.GetGFX(), mapDesc, nullptr);
-	 mHeightMap = std::make_unique<mydx::HeightMap>(mWindow.GetGFX(),L"../../data/map/WaterHeight.jpg");
-	 //mQuardTree = std::make_unique<mydx::QuardTreeVertexIndex>();
-	 //mQuardTree->Build(8,8);
-	 mQuardTreeVertexIndex = std::make_unique<mydx::QuardTreeVertexIndex>();
-	 //mQuardTreeVertexIndex->SetDepth(1);
-	 mQuardTreeVertexIndex->SetMap(mHeightMap.get());
-	 mQuardTreeVertexIndex->Build(mHeightMap.get(), mHeightMap.get()->GetMapDesc().ColCellCount, mHeightMap.get()->GetMapDesc().RowCellCount);
-	 //mQuardTreeVertexIndex->Build(mHeightMap.get(), 8,8);
+	 mMap = std::make_shared<mydx::Map>(mWindow.GetGFX(), mapDesc, nullptr);
+	 mQuardTreeVertexIndex = std::make_shared<mydx::QuardTreeVertexIndex>();
+	 mQuardTreeVertexIndex->SetMap(mMap.get());
+	 mQuardTreeVertexIndex->Build(mMap.get(), mMap.get()->GetMapDesc().ColCellCount, mMap.get()->GetMapDesc().RowCellCount);
 	 mQuardTreeVertexIndex->SetCamera(mCamera.get());
 
-	 mSelect = std::make_unique<mydx::Select>();
+	 //mHeightMap = std::make_shared<mydx::HeightMap>(mWindow.GetGFX(),L"../../data/map/WaterHeight.jpg");
+	 ////mQuardTree = std::make_unique<mydx::QuardTreeVertexIndex>();
+	 ////mQuardTree->Build(8,8);
+	 //mQuardTreeVertexIndex = std::make_shared<mydx::QuardTreeVertexIndex>();
+	 ////mQuardTreeVertexIndex->SetDepth(1);
+	 //mQuardTreeVertexIndex->SetMap(mHeightMap.get());
+	 //mQuardTreeVertexIndex->Build(mHeightMap.get(), mHeightMap.get()->GetMapDesc().ColCellCount, mHeightMap.get()->GetMapDesc().RowCellCount);
+	 ////mQuardTreeVertexIndex->Build(mHeightMap.get(), 8,8);
+	 //mQuardTreeVertexIndex->SetCamera(mCamera.get());
+
+	 mSelect = std::make_shared<mydx::Select>();
 	 mSelect->SetCamera(mCamera.get());
 	 return false;
 }
@@ -588,8 +594,7 @@ int App::Excute()
 		 offset -= 2 * frameTime;
 		 mCamera->MoveUp(offset);
 	 }
-
-	 if (mWindow.GetMouse().LeftIsPressed())
+	 if (mWindow.GetMouse().RightIsPressed())
 	 {
 		 const auto offset = mWindow.GetMouse().GetOffsetPostionX();
 
@@ -605,51 +610,89 @@ int App::Excute()
 		 yaw.x = lastPitchYawRoll.x + mWindow.GetMouse().GetOffsetPostionY() * 0.01f;
 
 		 mCamera->SetPitchYawRoll(::XMLoadFloat4(&yaw));
+	 }
+
+	 if (mWindow.GetMouse().LeftIsPressed())
+	 {
+		 
 		 //mCamera->AddPitchYawRoll(::XMLoadFloat4(&yaw));
 
 		 mSelect->Update(mWindow.GetGFX());
-		 ::XMVECTOR endPoint = mSelect->GetRay().Direction * mSelect->GetRay().Extent;
-		 //인덱스 버퍼에 번호로 페이스에 버텍스 3개를 가지고 픽킹연산.
-		 for (auto box : mBoxes)
+		 //::XMVECTOR endPoint = mSelect->GetRay().Direction * mSelect->GetRay().Extent;
+		 ////인덱스 버퍼에 번호로 페이스에 버텍스 3개를 가지고 픽킹연산.
+		 //for (auto box : mBoxes)
+		 //{
+			// auto& indexTable = box->GetIndexBuffer()->GetIndexTable();
+			// auto& vertexTable = box->GetVertexBuffer()->GetVertexTable();
+
+			// for (UINT tableIndex = 0; tableIndex < indexTable.size(); )
+			// {
+			//	 ::XMFLOAT4& vertexPosition0 = vertexTable[indexTable[tableIndex]].position;
+			//	 ::XMFLOAT4& vertexPosition1 = vertexTable[indexTable[tableIndex + 1]].position;
+			//	 ::XMFLOAT4& vertexPosition2 = vertexTable[indexTable[tableIndex + 2]].position;
+
+			//	 //교점 체크
+			//	 if (mSelect->CheckInterSection(mSelect->GetRay().Origine, endPoint,
+			//		::XMLoadFloat4(&vertexPosition0),
+			//		 ::XMLoadFloat4(&vertexPosition1),
+			//		 ::XMLoadFloat4(&vertexPosition2)))
+			//	 {
+			//	 // 삼각형 내부에 포함되는지 체크
+			//		 if (mSelect->PointInPolygon(
+			//			 mSelect->GetIntersectingLineSegment(),
+			//			 ::XMLoadFloat4(&vertexPosition0),
+			//			 ::XMLoadFloat4(&vertexPosition1),
+			//			 ::XMLoadFloat4(&vertexPosition2)))
+			//		 {
+			//			 ::XMFLOAT4& vertexColor0 = vertexTable[indexTable[tableIndex]].color;
+			//			 ::XMFLOAT4& vertexColor1 = vertexTable[indexTable[tableIndex + 1]].color;
+			//			 ::XMFLOAT4& vertexColor2 = vertexTable[indexTable[tableIndex + 2]].color;
+			//
+			//			 box->GetVertexBuffer()->Update(mWindow.GetGFX());
+			//			 break;
+			//		 }
+			//	 }
+			//	 
+
+			//	tableIndex += 3;
+			// }
+		 //}
+		 std::vector<DWORD> indexTable;
+		 mydx::Node* findNode = nullptr;
+		 findNode = mQuardTreeVertexIndex->FindSelectedNode(nullptr, mSelect.get());
+
+		 size_t tableSize = 6;
+		 indexTable.resize( tableSize);
+		 if (findNode != nullptr)
 		 {
-			 auto& indexTable = box->GetIndexBuffer()->GetIndexTable();
-			 auto& vertexTable = box->GetVertexBuffer()->GetVertexTable();
+			 mQuardTreeVertexIndex->UpdateIndexTable(0,
+				 findNode->GetCornerVertexIndexTable()[0],
+				 findNode->GetCornerVertexIndexTable()[1],
+				 findNode->GetCornerVertexIndexTable()[2],
+				 findNode->GetCornerVertexIndexTable()[3],
+				 indexTable);
 
-			 for (UINT tableIndex = 0; tableIndex < indexTable.size(); )
+			 auto& vertexTable = mMap->GetVertexBuffer()->GetVertexTable();
+			 float increas = 10.0f * mTimer.Mark();
+			 for (UINT indices = 0; indices < indexTable.size();)
 			 {
-				 ::XMFLOAT4 vertexPosition0 = vertexTable[indexTable[tableIndex]].position;
-				 ::XMFLOAT4 vertexPosition1 = vertexTable[indexTable[tableIndex + 1]].position;
-				 ::XMFLOAT4 vertexPosition2 = vertexTable[indexTable[tableIndex + 2]].position;
+				 ::XMFLOAT4& vertex0 = vertexTable[indexTable[indices]].position;
+				 ::XMFLOAT4& vertex1 = vertexTable[indexTable[indices + 1]].position;
+				 ::XMFLOAT4& vertex2 = vertexTable[indexTable[indices + 2]].position;
+				 ::XMFLOAT4& vertex3 = vertexTable[indexTable[indices + 4]].position;
 
-				 //교점 체크
-				 if (mSelect->CheckInterSection(mSelect->GetRay().Origine, endPoint,
-					::XMLoadFloat4(&vertexPosition0),
-					 ::XMLoadFloat4(&vertexPosition1),
-					 ::XMLoadFloat4(&vertexPosition2)))
-				 {
-				 // 삼각형 내부에 포함되는지 체크
-					 if (mSelect->PointInPolygon(
-						 mSelect->GetIntersectingLineSegment(),
-						 ::XMLoadFloat4(&vertexPosition0),
-						 ::XMLoadFloat4(&vertexPosition1),
-						 ::XMLoadFloat4(&vertexPosition2)))
-					 {
-						 ::XMFLOAT4& vertexColor0 = vertexTable[indexTable[tableIndex]].color;
-						 ::XMFLOAT4& vertexColor1 = vertexTable[indexTable[tableIndex + 1]].color;
-						 ::XMFLOAT4& vertexColor2 = vertexTable[indexTable[tableIndex + 2]].color;
-						 vertexColor0.x = 1.0f;
-						 vertexColor1.x = 1.0f;
-						 vertexColor2.x = 1.0f;
-						 box->GetVertexBuffer()->Update(mWindow.GetGFX());
-						 break;
-					 }
-				 }
-				 
+				
+				 vertex0.y += increas;
+				 vertex1.y += increas;
+				 vertex2.y += increas;
+				 vertex3.y += increas;
 
-				tableIndex += 3;
+				 indices += 6;
 			 }
+			 mMap->GetVertexBuffer()->Update(mWindow.GetGFX());
 		 }
-		 mQuardTreeVertexIndex;
+		 
+		 
 	 }
 
 
@@ -672,7 +715,7 @@ int App::Excute()
 		 box->Update(mWindow.GetGFX());
 	 }
 
-	 //mMap->Update(mWindow.GetGFX());
+	 
 	 //mBoxShape->SetRotation(oldRotationVector);
 	 //mBoxShape->SetRotation(::XMVectorSet(0.0f, t, 0.0f, 0.0f));
 
@@ -684,8 +727,12 @@ int App::Excute()
 	 //mBoxShape->Draw(mWindow.GetGFX());
 
 	 mQuardTreeVertexIndex->Update(mWindow.GetGFX());
-	 mHeightMap->UpdateIndexBuffer(mWindow.GetGFX(), mQuardTreeVertexIndex->GetUpdateIndexTable());
-	 mHeightMap->Update(mWindow.GetGFX());
+
+	 mMap->UpdateIndexBuffer(mWindow.GetGFX(), mQuardTreeVertexIndex->GetUpdateIndexTable());
+	 mMap->Update(mWindow.GetGFX());
+
+	 /*mHeightMap->UpdateIndexBuffer(mWindow.GetGFX(), mQuardTreeVertexIndex->GetUpdateIndexTable());
+	 mHeightMap->Update(mWindow.GetGFX());*/
 
 	
 
@@ -695,6 +742,7 @@ int App::Excute()
 {
 	 mWindow.GetGFX().ClearBuffer(1.0f,1.0f,1.0f,1.0f);
 	  mWindow.GetGFX().GetDeviceContext()->OMSetDepthStencilState(mStencilState1.Get(), 1u);
+	 
 	 mCamera->Render(mWindow.GetGFX());
 
 	// mBoxShape->Render(mWindow.GetGFX());
@@ -732,8 +780,13 @@ int App::Excute()
 		box->Update(mWindow.GetGFX());
 		box->Render(mWindow.GetGFX());
 	}
-	mHeightMap->Update(mWindow.GetGFX());
-	mHeightMap->Render(mWindow.GetGFX());
+
+	
+	mMap->Update(mWindow.GetGFX());
+	mMap->Render(mWindow.GetGFX());
+	
+	//mHeightMap->Update(mWindow.GetGFX());
+	//mHeightMap->Render(mWindow.GetGFX());
 	mCamera->SetViewMatrix(oldViewMatrix);
 	
 	//mBoundingBox->Update(mWindow.GetGFX());
@@ -741,8 +794,15 @@ int App::Excute()
 	//뷰포트, 카메라 초기화
 	mWindow.GetGFX().SetViewMatrix(oldViewMatrix);
 	mWindow.GetGFX().GetDeviceContext()->RSSetViewports(1, &mViewPort[0]);
-	mHeightMap->Update(mWindow.GetGFX());
-	mHeightMap->Render(mWindow.GetGFX());
+
+	mWindow.GetGFX().GetDeviceContext()->RSSetState(mRasterizerStateWireFrame.Get());
+	mMap->Update(mWindow.GetGFX());
+	mMap->Render(mWindow.GetGFX());
+	mWindow.GetGFX().GetDeviceContext()->RSSetState(mRasterizerStateSolid.Get());
+	/*mHeightMap->Update(mWindow.GetGFX());
+	mHeightMap->Render(mWindow.GetGFX());*/
+
+
 	//mHeightMap->Render(mWindow.GetGFX());
 	/*mWindow.GetGFX().GetDeviceContext()->RSSetState(mRasterizerStateWireFrame.Get());
 	mWindow.GetGFX().GetDeviceContext()->RSSetState(mRasterizerStateSolid.Get());*/

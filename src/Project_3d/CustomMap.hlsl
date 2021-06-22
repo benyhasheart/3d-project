@@ -40,9 +40,7 @@ VS_output vertexShaderMain(VS_input input)
 
 float4 pixelShaderMain(PS_input input) : SV_TARGET
 {
-	float4 color = input.normal;
-	color.w = 1.0f;
-	return color;
+	return input.color;
 	//return input.color;
 	//return texture0.Sample(sampler0, input.texcoord);
 }

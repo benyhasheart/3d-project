@@ -23,7 +23,8 @@ mydx::Map::Map(Graphics& graphics, MapDesc& mapDesc, const TCHAR* textureFileNam
         textureFileName = L"../../data/etcTexture/desert.jpg";
     }
 
-    AddBind(std::make_shared<VertexBuffer<VertexData>>(graphics, mVertexData));
+    mVertexBuffer = std::make_shared<VertexBuffer<VertexData>>(graphics, mVertexData);
+    AddBind(mVertexBuffer);
 
     mIndexBuffer = std::make_shared<IndexBuffer>(graphics, mIndices);
     AddIndexBuffer(mIndexBuffer);
@@ -37,8 +38,8 @@ mydx::Map::Map(Graphics& graphics, MapDesc& mapDesc, const TCHAR* textureFileNam
     const std::vector< D3D11_INPUT_ELEMENT_DESC> layoutList =
     {
         { "POSITION", 0, DXGI_FORMAT_R32G32B32A32_FLOAT, 0, 0, D3D11_INPUT_PER_VERTEX_DATA, 0},
-        { "COLOR", 0, DXGI_FORMAT_R32G32B32A32_FLOAT, 0, 16, D3D11_INPUT_PER_VERTEX_DATA, 0},
         { "NORMAL", 0, DXGI_FORMAT_R32G32B32A32_FLOAT, 0, 32, D3D11_INPUT_PER_VERTEX_DATA, 0},
+        { "COLOR", 0, DXGI_FORMAT_R32G32B32A32_FLOAT, 0, 16, D3D11_INPUT_PER_VERTEX_DATA, 0},
         { "TEXTURECOORD", 0, DXGI_FORMAT_R32G32B32A32_FLOAT, 0, 48, D3D11_INPUT_PER_VERTEX_DATA, 0},
     };
 
@@ -185,6 +186,16 @@ mydx::MapDesc& mydx::Map::GetMapDesc() noexcept
         return mMapDesc;
 }
 
+std::shared_ptr<VertexBuffer<mydx::VertexData>>& mydx::Map::GetVertexBuffer() noexcept
+{
+    return mVertexBuffer;
+}
+
+std::shared_ptr<IndexBuffer>& mydx::Map::GetIndexBuffer() noexcept
+{
+    return mIndexBuffer;
+}
+
 void mydx::Map::createVertices(UINT width, UINT height, UINT cellDistance)
 {
     UINT rowCount = height + 1;
@@ -208,7 +219,7 @@ void mydx::Map::createVertices(UINT width, UINT height, UINT cellDistance)
             vertex.position.w = 1.0f;
 
             vertex.normal = { 0.0f, 0.0f, 0.0f, 0.0f };
-            vertex.color = { 1.0f, 0.0f, 0.0f, 1.0f };
+            vertex.color = { 0.0f, 0.0f, 0.0f, 1.0f };
 
             vertex.textureCoordinate.x = colIndex * (1.0f / colCount);
             vertex.textureCoordinate.y = rowIndex * (1.0f / rowCount);

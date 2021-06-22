@@ -38,6 +38,9 @@ namespace mydx
 	public:
 		std::vector<VertexData>& GetVertexData() noexcept;
 		MapDesc& GetMapDesc() noexcept;
+
+		std::shared_ptr<VertexBuffer<mydx::VertexData>>& GetVertexBuffer() noexcept;
+		std::shared_ptr<IndexBuffer>& GetIndexBuffer() noexcept;
 	protected:
 		void createVertices(UINT width, UINT height, UINT cellDistance);
 		void createIndices(UINT width, UINT height);

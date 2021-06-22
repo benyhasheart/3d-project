@@ -39,11 +39,12 @@ bool mydx::QuardTreeVertexIndex::Update(Graphics& graphics) noexcept
     mUpdateIndexTable.resize(size);
     for (auto& node : mDrawableNode)
     {
-            faceCount += updateIndexTable( faceCount * 3,
+            faceCount += UpdateIndexTable( faceCount * 3,
                                             node->GetCornerVertexIndexTable()[0],
                                             node->GetCornerVertexIndexTable()[1], 
                                             node->GetCornerVertexIndexTable()[2], 
-                                            node->GetCornerVertexIndexTable()[3] );
+                                            node->GetCornerVertexIndexTable()[3],
+                                            mUpdateIndexTable);
     }
     
     return true;

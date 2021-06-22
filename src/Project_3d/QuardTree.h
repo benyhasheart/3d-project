@@ -2,9 +2,11 @@
 
 #include "Node.h"
 #include "Drawable.h"
+#include "Select.h"
 
 class Camera;
 class Map;
+
 namespace mydx
 {
 
@@ -18,6 +20,9 @@ namespace mydx
 		virtual bool Build(float width, float height) noexcept;
 
 	public:
+		Node* FindSelectedNode(Node* node, Select* selectClass);
+		int UpdateIndexTable(DWORD currentIndex, DWORD topLeft, DWORD topRight, DWORD bottomLeft, DWORD bottomRight, std::vector<DWORD>& indexTable) noexcept;
+	public:
 		virtual DirectX::XMMATRIX GetTransform() const noexcept override;
 		virtual bool Initialize(Graphics& graphics) noexcept override ;
 		virtual bool Update(Graphics& graphics) noexcept override ;
@@ -29,6 +34,7 @@ namespace mydx
 	public:
 		void SetCamera(Camera* camera)noexcept;
 		void SetMap(Map* map)noexcept;
+		void SetSelectClass(Select* select) noexcept;
 
 		void SetDepth(int depth) noexcept;
 		int GetDepth() noexcept;
@@ -43,7 +49,8 @@ namespace mydx
 	protected:
 
 		bool findDrawableNode(Node* node) noexcept;
-		int updateIndexTable(DWORD currentIndex, DWORD topLeft, DWORD topRight, DWORD bottomLeft, DWORD bottomRight) noexcept;
+		bool computeSelectedNode(Node* node, DirectX::XMVECTOR start, DirectX::XMVECTOR end);
+		
 
 
 
@@ -51,9 +58,12 @@ namespace mydx
 		std::shared_ptr<Node> mRootNode;		
 		std::vector<Node*> mDrawableNode;
 		std::vector<DWORD> mUpdateIndexTable;
-		Camera*	mCamera;
 
+		Camera*	mCamera;
 		Map* mMap;
+		Select* mSelect;
+		Node* mFindNode;
+
 		DWORD mWidth;
 		DWORD mHeight;
 		int mDepth;
