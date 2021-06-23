@@ -210,6 +210,8 @@ HRESULT Graphics::CreateViewPort()
 
 	mViewPort.Width = desc.BufferDesc.Width;
 	mViewPort.Height = desc.BufferDesc.Height;
+	/*mViewPort.Width = 600;
+	mViewPort.Height = 400;*/
 	mViewPort.MinDepth = 0.0f;
 	mViewPort.MaxDepth = 1.0f;
 	mViewPort.TopLeftX = 0;
@@ -263,7 +265,7 @@ void Graphics::ClearBuffer(float r, float g, float b, float a)
 
 void Graphics::EndFrame()
 {
-	mSwapChain->Present(0u,0u);
+	mSwapChain->Present(1u,0u);
 }
 
 HRESULT Graphics::ResizeDevice(UINT width, UINT height)

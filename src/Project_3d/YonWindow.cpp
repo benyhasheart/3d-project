@@ -1,4 +1,5 @@
 #include "YonWindow.h"
+#include "imgui_impl_win32.h"
 
 HWND g_hwnd;
 YonWindow::YonWindow()
@@ -15,7 +16,8 @@ YonWindow::YonWindow()
 
 YonWindow::~YonWindow()
 {
-    UnregisterClass(mClassName, mhInstance);
+    ::DestroyWindow(mhWnd);
+    ::UnregisterClass(mClassName, mhInstance);
 }
 
 
@@ -146,9 +148,14 @@ LRESULT YonWindow::handleMsgThunk(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lPa
 
     return wnd->wndProc(hWnd, msg, wParam, lParam);
 }
+
+extern IMGUI_IMPL_API LRESULT ImGui_ImplWin32_WndProcHandler(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
+
 LRESULT YonWindow::wndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam) noexcept
 {
- 
+    if (ImGui_ImplWin32_WndProcHandler(hWnd, message, wParam, lParam))
+        return true;
+
     switch (message)
     {
     case WM_SIZE:
