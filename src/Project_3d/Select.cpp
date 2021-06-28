@@ -133,7 +133,7 @@ bool Select::Update(Graphics& graphics) noexcept
     ::ScreenToClient(g_hwnd, &cursor);
 
     ::XMVECTOR position = ::XMVectorSet(cursor.x, cursor.y, 1.0f, 0.0f);
-    ScreenToWorld(position, 800.0f, 600.0f);
+    ScreenToWorld(position, YonWindow::windowWidth, YonWindow::windowHeight);
 
 
     return false;

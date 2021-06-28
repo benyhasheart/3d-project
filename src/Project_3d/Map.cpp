@@ -18,10 +18,10 @@ mydx::Map::Map(Graphics& graphics, MapDesc& mapDesc, const TCHAR* textureFileNam
     mMapDesc = mapDesc;
     CreateMap(mapDesc);
 
-    if (textureFileName == nullptr)
+  /*  if (textureFileName == nullptr)
     {
         textureFileName = L"../../data/etcTexture/desert.jpg";
-    }
+    }*/
 
     mVertexBuffer = std::make_shared<VertexBuffer<VertexData>>(graphics, mVertexData);
     AddBind(mVertexBuffer);
@@ -49,7 +49,7 @@ mydx::Map::Map(Graphics& graphics, MapDesc& mapDesc, const TCHAR* textureFileNam
 
     AddBind(std::make_shared<PixelShader>(graphics, L"CustomMap.hlsl", "pixelShaderMain"));
 
-    AddBind(std::make_shared<Texture>(graphics, textureFileName));
+    //AddBind(std::make_shared<Texture>(graphics, textureFileName));
 
     AddBind(std::make_shared<TransformConstantBuffer>(graphics, *this));
 }
@@ -219,7 +219,7 @@ void mydx::Map::createVertices(UINT width, UINT height, UINT cellDistance)
             vertex.position.w = 1.0f;
 
             vertex.normal = { 0.0f, 0.0f, 0.0f, 0.0f };
-            vertex.color = { 0.0f, 0.0f, 0.0f, 1.0f };
+            vertex.color = { 1.0f, 0.0f, 0.0f, 1.0f };
 
             vertex.textureCoordinate.x = colIndex * (1.0f / colCount);
             vertex.textureCoordinate.y = rowIndex * (1.0f / rowCount);

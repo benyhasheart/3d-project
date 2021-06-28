@@ -7,12 +7,6 @@
 
 namespace mydx
 {
-	struct MapDesc
-	{
-		UINT RowCellCount;
-		UINT ColCellCount;
-		float CellDistance;
-	};
 	
 	class Map : public Drawable
 	{

@@ -15,8 +15,8 @@ VertexShader::VertexShader(Graphics& graphics, const std::wstring& filePath, con
 	// vertex shader
 	hr = D3DCompileFromFile(filePath.c_str(), NULL, NULL, endtryPoint.c_str(), "vs_5_0", shaderFlags, NULL, mBytecodeBlob.GetAddressOf(), &errorMsg);
 	graphics.GetDevice()->CreateVertexShader(mBytecodeBlob->GetBufferPointer(),
-		mBytecodeBlob->GetBufferSize(),
-		nullptr, mVertexShader.GetAddressOf());
+												mBytecodeBlob->GetBufferSize(),
+												nullptr, mVertexShader.GetAddressOf());
 }
 
 void VertexShader::Bind(Graphics& graphics) noexcept

@@ -24,7 +24,7 @@ struct VS_output
 
 struct PS_input
 {
-	float4 position :POSITION;
+	float4 position :SV_POSITION;
 	float4 normal : NORMAL;
 	float4 color : COLOR;
 	float4 texcoord : TEXCOORD0;

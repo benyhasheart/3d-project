@@ -8,6 +8,7 @@
 #include "Mouse.h"
 
 extern HWND g_hwnd;
+extern Graphics* g_graphics;
 class YonWindow
 {
 public:
@@ -17,7 +18,7 @@ public:
 	~YonWindow();
 
 public:
-	bool InitWindow(HINSTANCE hInstance, const TCHAR* windowTitle, int nCmdShow);
+	bool InitWindow(HINSTANCE hInstance, const TCHAR* windowTitle, UINT width, UINT height, int nCmdShow);
 	void CenterWindow(HWND hWnd);
 public:
 	std::optional<int> ProcessMessages();
@@ -32,8 +33,8 @@ private:
 	LRESULT wndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam) noexcept;
 	
 public:
-	UINT windowWidth;
-	UINT windowHeight;
+	static UINT windowWidth;
+	static UINT windowHeight;
 private:
 	HINSTANCE mhInstance;
 	HWND mhWnd;

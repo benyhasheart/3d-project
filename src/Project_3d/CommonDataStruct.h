@@ -22,4 +22,11 @@ namespace mydx
 		DirectX::XMVECTOR Axis[3];
 		DirectX::XMVECTOR Extent[3];
 	};
+
+	struct MapDesc
+	{
+		unsigned int RowCellCount;
+		unsigned int ColCellCount;
+		float CellDistance;
+	};
 }

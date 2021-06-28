@@ -2,6 +2,11 @@
 #include "imgui_impl_win32.h"
 
 HWND g_hwnd;
+Graphics* g_graphics;
+
+UINT YonWindow::windowWidth = 0u;
+UINT YonWindow::windowHeight = 0u;
+
 YonWindow::YonWindow()
 {
 	mhInstance = NULL;
@@ -21,7 +26,7 @@ YonWindow::~YonWindow()
 }
 
 
-bool YonWindow::InitWindow(HINSTANCE hInstance, const TCHAR* windowTitle, int nCmdShow)
+bool YonWindow::InitWindow(HINSTANCE hInstance, const TCHAR* windowTitle, UINT width, UINT height, int nCmdShow)
 {
     mhInstance = hInstance;
     if (mhInstance == NULL)
@@ -47,7 +52,7 @@ bool YonWindow::InitWindow(HINSTANCE hInstance, const TCHAR* windowTitle, int nC
 
     // Create window
    
-    RECT rc = { 0, 0, 800, 600 };
+    RECT rc = { 0, 0, width, height };
     // 작업영역(  타이틀 바/경계선/메뉴/스크롤 바 등의 영역을 제외한 영역), 윈도우 스타일, 메뉴여부
     AdjustWindowRect(&rc, WS_OVERLAPPEDWINDOW, FALSE);
     mhWnd = CreateWindow(mClassName, windowTitle, WS_OVERLAPPEDWINDOW,
@@ -70,6 +75,7 @@ bool YonWindow::InitWindow(HINSTANCE hInstance, const TCHAR* windowTitle, int nC
     // graphics
     mGFX = std::make_unique<Graphics>();
     mGFX->Initialize(mhWnd);
+    g_graphics = mGFX.get();
 
     g_hwnd = mhWnd;
     ShowWindow(mhWnd, nCmdShow);
@@ -110,7 +116,7 @@ std::optional<int> YonWindow::ProcessMessages()
     }
     return {};
 }
- Graphics& YonWindow::GetGFX() const noexcept
+ Graphics& YonWindow::GetGFX()const noexcept
 {
     return *mGFX;
 }
@@ -164,14 +170,18 @@ LRESULT YonWindow::wndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam
         {
             UINT width = LOWORD(lParam);
             UINT height = HIWORD(lParam);
+            windowWidth = width;
+            windowHeight = height;
             mGFX->ResizeDevice(width, height);
         }
-        else if (SIZE_MAXIMIZED == wParam) // 윈도우 창 최대크기. 풀 스크린과 창크기 최대화는 메시지로 구분 불가. 
+        else if (SIZE_MAXIMIZED == wParam ) // 윈도우 창 최대크기. 풀 스크린과 창크기 최대화는 메시지로 구분 불가. 
         {
             UINT width = LOWORD(lParam);
             UINT height = HIWORD(lParam);
             // fullscreen 분기
-            // mGFX->IsFullScreen(true); // fullscreen 변경
+            //mGFX->IsFullScreen(true); // fullscreen 변경
+            windowWidth = width;
+            windowHeight = height;
             mGFX->ResizeDevice(width, height);
         }
     break;

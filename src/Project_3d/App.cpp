@@ -1,13 +1,9 @@
-#pragma once
 #include <d3dcompiler.h>
 #include <random>
 
 #include "App.h"
 #include "EnumData.h"
 #include "FirstPersonViewCamera.h"
-#include "imgui.h"
-#include "imgui_impl_win32.h"
-#include "imgui_impl_dx11.h"
 #include "Matrix.h"
 #include "ModelViewCamera.h"
 
@@ -24,9 +20,7 @@ App::App()
 
 int App::Excute()
 {
-	bool show_demo_window = true;
-	bool show_another_window = false;
-	ImVec4 clear_color = ImVec4(1.45f, 0.55f, 0.60f, 1.00f);
+
 	while (true)
 	{
 		if (const auto e = mWindow.ProcessMessages())
@@ -34,76 +28,20 @@ int App::Excute()
 			return e.value();
 		}
 		Update();
-		ImGui_ImplDX11_NewFrame();
-		ImGui_ImplWin32_NewFrame();
-		ImGui::NewFrame();
-
-		if (show_demo_window)
-			ImGui::ShowDemoWindow(&show_demo_window);
-
-		// 2. Show a simple window that we create ourselves. We use a Begin/End pair to created a named window.
-		{
-			static float f = 0.0f;
-			static int counter = 0;
-
-			ImGui::Begin("Hello, world!");                          // Create a window called "Hello, world!" and append into it.
-
-			ImGui::Text("This is some useful text.");               // Display some text (you can use a format strings too)
-			ImGui::Checkbox("Demo Window", &show_demo_window);      // Edit bools storing our window open/close state
-			ImGui::Checkbox("Another Window", &show_another_window);
-
-			ImGui::SliderFloat("float", &f, 0.0f, 1.0f);            // Edit 1 float using a slider from 0.0f to 1.0f
-			ImGui::ColorEdit3("clear color", (float*)&clear_color); // Edit 3 floats representing a color
-
-			if (ImGui::Button("Button"))                            // Buttons return true when clicked (most widgets return true when edited/activated)
-				counter++;
-			ImGui::SameLine();
-			ImGui::Text("counter = %d", counter);
-
-			ImGui::Text("Application average %.3f ms/frame (%.1f FPS)", 1000.0f / ImGui::GetIO().Framerate, ImGui::GetIO().Framerate);
-			ImGui::End();
-		}
-
-		// 3. Show another simple window.
-		if (show_another_window)
-		{
-			ImGui::Begin("Another Window", &show_another_window);   // Pass a pointer to our bool variable (the window will have a closing button that will clear the bool when clicked)
-			ImGui::Text("Hello from another window!");
-			if (ImGui::Button("Close Me"))
-				show_another_window = false;
-			ImGui::End();
-		}
-		
-		mWindow.GetGFX().ClearBuffer(1.0f, 1.0f, 1.0f, 1.0f);
-
 		Render();
-		ImGui::Render();
-		ImGui_ImplDX11_RenderDrawData(ImGui::GetDrawData());
-
-		mWindow.GetGFX().EndFrame();
 	}
-	// Cleanup
-	ImGui_ImplDX11_Shutdown();
-	ImGui_ImplWin32_Shutdown();
-	ImGui::DestroyContext();
 
 }
 
 
  bool App::Initialize()
 {
-	 mWindow.InitWindow(NULL, L"YonWindow", SW_SHOWDEFAULT);
+	 mWindow.InitWindow(NULL, L"YonWindow",800, 600, SW_SHOWDEFAULT);
 
 #pragma region imgui
-
-	IMGUI_CHECKVERSION();
-	ImGui::CreateContext();
-	ImGuiIO& io = ImGui::GetIO();
-	
-	ImGui::StyleColorsDark();
-
-	ImGui_ImplWin32_Init(g_hwnd);
-	ImGui_ImplDX11_Init(mWindow.GetGFX().GetDevice(), mWindow.GetGFX().GetDeviceContext());
+	mUi = std::make_unique<mydx::UI>(mWindow.GetGFX());
+	App* ap = this;
+	mUi->SetOwenrApp(ap);
 #pragma endregion imgui
 
 	 //create vertex
@@ -511,6 +449,8 @@ int App::Excute()
 
 	 mSelect = std::make_shared<mydx::Select>();
 	 mSelect->SetCamera(mCamera.get());
+
+	// mTerrain = std::make_shared<mydx::Terrain>(*g_graphics, mapDesc);
 	 return false;
 }
 
@@ -786,6 +726,10 @@ int App::Excute()
 		 box->Update(mWindow.GetGFX());
 	 }
 
+	 for (auto& terrain : mTerrainList)
+	 {
+		terrain->Update(mWindow.GetGFX());
+	 }
 	 
 	 //mBoxShape->SetRotation(oldRotationVector);
 	 //mBoxShape->SetRotation(::XMVectorSet(0.0f, t, 0.0f, 0.0f));
@@ -805,13 +749,13 @@ int App::Excute()
 	 /*mHeightMap->UpdateIndexBuffer(mWindow.GetGFX(), mQuardTreeVertexIndex->GetUpdateIndexTable());
 	 mHeightMap->Update(mWindow.GetGFX());*/
 
-	
+	mUi->Update();
 
 	 return false;
 }
  bool App::Render()
 {
-	 
+	 mWindow.GetGFX().ClearBuffer(1.0f, 1.0f, 1.0f, 1.0f);
 	  mWindow.GetGFX().GetDeviceContext()->OMSetDepthStencilState(mStencilState1.Get(), 1u);
 	 
 	 mCamera->Render(mWindow.GetGFX());
@@ -819,6 +763,10 @@ int App::Excute()
 	// mBoxShape->Render(mWindow.GetGFX());
 	 mBoundingBox->Render(mWindow.GetGFX());
 
+	 for (auto& terrain : mTerrainList)
+	 {
+		 terrain->Render(mWindow.GetGFX());
+	 }
 
 	 for (auto& box : mBoxes)
 	 {
@@ -878,10 +826,27 @@ int App::Excute()
 	/*mWindow.GetGFX().GetDeviceContext()->RSSetState(mRasterizerStateWireFrame.Get());
 	mWindow.GetGFX().GetDeviceContext()->RSSetState(mRasterizerStateSolid.Get());*/
 
-	 
+	mUi->Render();
+
+	mWindow.GetGFX().EndFrame();
 	 return false;
 }
  bool App::Release()
 {
 	 return false;
 }
+
+ void App::AddTerrain(std::shared_ptr<mydx::Map>& map) noexcept
+ {
+	mTerrainList.emplace_back(map);
+ }
+
+ bool App::BuildTerrain(mydx::MapDesc& mapDesc, std::shared_ptr<Texture> material, std::shared_ptr<Texture> heightMap)
+ {
+	std::shared_ptr<mydx::Map> map = std::make_shared<mydx::Terrain>(*g_graphics, mapDesc, material, heightMap);
+
+	if(map != nullptr)
+		AddTerrain(map);
+
+	 return false;
+ }

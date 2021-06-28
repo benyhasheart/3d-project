@@ -20,6 +20,8 @@
 #include "HeightMap.h"
 #include "QuardTreeVertexIndex.h"
 #include "Select.h"
+#include "UI.h"
+#include "Terrain.h"
 
 
 
@@ -66,6 +68,10 @@ public:
 	virtual bool Render() override;
 	virtual bool Release() override;
 
+public:
+	void AddTerrain(std::shared_ptr<mydx::Map>& map) noexcept;
+	bool BuildTerrain(mydx::MapDesc& mapDesc, std::shared_ptr<Texture> material = nullptr, std::shared_ptr<Texture> heightMap = nullptr);
+
 // --test 
 public:
 	Microsoft::WRL::ComPtr<ID3D11Buffer> mVertexBuffer;
@@ -95,6 +101,7 @@ public:
 	std::unique_ptr<mydx::BoundingBox> mBoundingBox;
 	std::shared_ptr<mydx::Map> mMap;
 	std::shared_ptr<mydx::HeightMap> mHeightMap;
+	std::shared_ptr<mydx::Map> mTerrain;
 	std::unique_ptr<mydx::QuardTree> mQuardTree;
 	std::shared_ptr<mydx::QuardTreeVertexIndex> mQuardTreeVertexIndex;
 	std::shared_ptr<mydx::Select> mSelect;
@@ -117,10 +124,12 @@ public:
 	ViewPerspectiveConstantData mViewPerspectiveData;
 
 	std::vector< std::shared_ptr<Box>> mBoxes;
+	std::vector<std::shared_ptr<mydx::Map>> mTerrainList;
 	//UINT mStride;
 // --
 private:
 	YonWindow mWindow;
 	YonTimer mTimer;
+	std::unique_ptr<mydx::UI> mUi;
 };
 
