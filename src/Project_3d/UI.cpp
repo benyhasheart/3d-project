@@ -1,6 +1,6 @@
 #pragma once
 #include "UI.h"
-
+#include "App.h"
 
 using namespace mydx;
 
@@ -84,8 +84,40 @@ bool mydx::UI::Update() noexcept
         }
         ImGui::EndTabBar();
     }
-    //ImGui::SetWindowSize(ImVec2(200.0f, YonWindow::windowHeight));
+    
+    ImGui::End();
 
+   
+    ImGui::SetNextWindowPos(ImVec2(YonWindow::windowWidth - ImGui::GetWindowWidth(), 0));
+    ImGui::Begin("World Actor", &isOpen);
+    auto& terrainIter = mOwnerApp->GetTerrainList();
+    static std::vector<std::string> terrainList;
+    if (terrainList.size() != terrainIter.size())
+    {
+        terrainList.clear();
+        //terrainList.resize(terrainIter.size());
+        for (auto& iter : terrainIter)
+        {
+            terrainList.push_back(iter.first);
+        }
+    }
+    
+    static int item_current_idx = 0;
+    ImGui::Text("Actor List");
+    if (ImGui::BeginListBox("##Actor List"))
+    {
+        for (int n = 0; n < terrainList.size(); n++)
+        {
+            const bool is_selected = (item_current_idx == n);
+            if (ImGui::Selectable(terrainList[n].c_str(), is_selected))
+                item_current_idx = n;
+
+            // Set the initial focus when opening the combo (scrolling + keyboard navigation focus)
+            if (is_selected)
+                ImGui::SetItemDefaultFocus();
+        }
+        ImGui::EndListBox();
+    }
     ImGui::End();
     return false;
 }

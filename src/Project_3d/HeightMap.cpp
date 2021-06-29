@@ -44,8 +44,8 @@ mydx::HeightMap::HeightMap(Graphics& graphics, const TCHAR* textureFileName)
 	//create vertex, index
 	mMapDesc.RowCellCount = mTextureDesc.Height;
 	mMapDesc.ColCellCount = mTextureDesc.Width;
-	mMapDesc.CellDistance = 1u;
-	createVertices(mMapDesc.ColCellCount, mMapDesc.RowCellCount, mMapDesc.CellDistance);
+	mMapDesc.scale = ::XMVectorSet(1.0f,1.0f,1.0f,0.0f);
+	createVertices(mMapDesc.ColCellCount, mMapDesc.RowCellCount, mMapDesc.scale);
 	createIndices(mMapDesc.ColCellCount, mMapDesc.RowCellCount);
 
 	ID3D11Texture2D* stagTex = nullptr; // create Staging texture_____________________________________

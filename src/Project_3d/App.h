@@ -72,6 +72,8 @@ public:
 	void AddTerrain(std::shared_ptr<mydx::Map>& map) noexcept;
 	bool BuildTerrain(mydx::MapDesc& mapDesc, std::shared_ptr<Texture> material = nullptr, std::shared_ptr<Texture> heightMap = nullptr);
 
+public:
+	std::unordered_map<std::string, std::shared_ptr<mydx::Map>>& GetTerrainList() noexcept;
 // --test 
 public:
 	Microsoft::WRL::ComPtr<ID3D11Buffer> mVertexBuffer;
@@ -124,7 +126,8 @@ public:
 	ViewPerspectiveConstantData mViewPerspectiveData;
 
 	std::vector< std::shared_ptr<Box>> mBoxes;
-	std::vector<std::shared_ptr<mydx::Map>> mTerrainList;
+	//std::vector<std::shared_ptr<mydx::Map>> mTerrainList;
+	std::unordered_map<std::string, std::shared_ptr<mydx::Map>> mTerrainList;
 	//UINT mStride;
 // --
 private:

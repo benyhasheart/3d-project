@@ -201,7 +201,7 @@ int App::Excute()
 	 mWindow.GetGFX().GetDevice()->CreateRasterizerState(&RSdesc, mRasterizerStateWireFrame.GetAddressOf());
 
 	 //mWindow.GetGFX().GetDeviceContext()->RSSetState(mRasterizerStateSolid.Get());
-	 mWindow.GetGFX().GetDeviceContext()->RSSetState(mRasterizerStateWireFrame.Get());
+	 mWindow.GetGFX().GetDeviceContext()->RSSetState(mRasterizerStateSolid.Get());
 
 #pragma region LoadTextureFromFile
 
@@ -282,9 +282,9 @@ int App::Excute()
 #pragma region	SamplerState
 	
 	 mSamplerDesc = {};
-	 mSamplerDesc.AddressU = static_cast<D3D11_TEXTURE_ADDRESS_MODE>(2);
-	 mSamplerDesc.AddressV = static_cast<D3D11_TEXTURE_ADDRESS_MODE>(2);
-	 mSamplerDesc.AddressW = static_cast<D3D11_TEXTURE_ADDRESS_MODE>(2);
+	 mSamplerDesc.AddressU = static_cast<D3D11_TEXTURE_ADDRESS_MODE>(1);
+	 mSamplerDesc.AddressV = static_cast<D3D11_TEXTURE_ADDRESS_MODE>(1);
+	 mSamplerDesc.AddressW = static_cast<D3D11_TEXTURE_ADDRESS_MODE>(1);
 	 mSamplerDesc.BorderColor[0] = 1.0f;
 	 mSamplerDesc.BorderColor[1] = 0.0f;
 	 mSamplerDesc.BorderColor[2] = 0.0f;
@@ -337,7 +337,7 @@ int App::Excute()
 	 //mCamera = std::make_unique<ModelViewCamera>();
 	 mCamera = std::make_unique<FirstPersonViewCamera>();
 	 mCamera->CreateViewMatrix(
-		 ::XMVectorSet(0.0f, 10.0f, -5.0f, 0.0f),
+		 ::XMVectorSet(0.0f, 10.0f, -10.0f, 0.0f),
 		 ::XMVectorSet(0.0f, 0.0f, 0.0f, 0.0f),
 		 ::XMVectorSet(0.0f, 1.0f, 0.0f, 0.0f));
 
@@ -355,7 +355,7 @@ int App::Excute()
 		 ::XMVectorSet(0.0f, 0.0f, 1.0f, 0.0f)
 	 );
 
-	 mBoxShape = std::make_unique<Box>(mWindow.GetGFX());
+	// mBoxShape = std::make_unique<Box>(mWindow.GetGFX());
 #pragma endregion
 
 #pragma region stencil state
@@ -409,7 +409,7 @@ int App::Excute()
 	 std::uniform_real_distribution<float> odist(0.0f, 3.1415f * 0.3f);
 	 std::uniform_real_distribution<float> rdist(6.0f, 20.0f);
 
-	 mBoxes.reserve(20);
+	// mBoxes.reserve(20);
 	 /*for (int i = 0; i < 1; i++)
 	 {
 		 auto box = std::make_shared<Box>(
@@ -419,17 +419,17 @@ int App::Excute()
 				::XMVECTOR({ ddist(rng),ddist(rng) ,ddist(rng) }));
 		 mBoxes.emplace_back(box);
 	 }*/
-	 auto box = std::make_shared<Box>(
-		 mWindow.GetGFX(),
-		 ::XMVECTOR({ 1.0f,1.0f,1.0f }),
-		 ::XMVECTOR({ 0.0f,0.0f,0.0f }),
-		 ::XMVECTOR({ 0.0f,0.0f,0.0f }));
-		 mBoxes.emplace_back(box);
+	 //auto box = std::make_shared<Box>(
+		// mWindow.GetGFX(),
+		// ::XMVECTOR({ 1.0f,1.0f,1.0f }),
+		// ::XMVECTOR({ 0.0f,0.0f,0.0f }),
+		// ::XMVECTOR({ 0.0f,0.0f,0.0f }));
+		// mBoxes.emplace_back(box);
 
 	 mydx::MapDesc mapDesc = {};
 	 mapDesc.ColCellCount = 8;
 	 mapDesc.RowCellCount = 8;
-	 mapDesc.CellDistance = 1.0f;
+	 mapDesc.scale = ::XMVectorSet(1.0f, 1.0f, 1.0f, 0.0f);
 
 	 mMap = std::make_shared<mydx::Map>(mWindow.GetGFX(), mapDesc, nullptr);
 	 mQuardTreeVertexIndex = std::make_shared<mydx::QuardTreeVertexIndex>();
@@ -522,7 +522,7 @@ int App::Excute()
 	 ////mPixelShaderClass->Bind(mWindow.GetGFX());
 	 ////mWindow.GetGFX().GetDeviceContext()->PSSetShaderResources(0u,1u,mShaderResourceView.GetAddressOf());
 	 ///*mTexture->Bind(mWindow.GetGFX());
-	 mWindow.GetGFX().GetDeviceContext()->PSSetSamplers(0u, 1u, mSamplerState.GetAddressOf());
+	// mWindow.GetGFX().GetDeviceContext()->PSSetSamplers(0u, 1u, mSamplerState.GetAddressOf());
 
 	 //mWindow.GetGFX().GetDeviceContext()->DrawIndexed( 6, 0u, 0u);*/
 
@@ -714,21 +714,21 @@ int App::Excute()
 	 mCamera->Update(mWindow.GetGFX());
 	 mWindow.GetGFX().SetViewMatrix(mCamera.get()->GetViewMatrix());
 
-	 const auto oldRotationVector = mBoxShape->GetRotation();
+	 //const auto oldRotationVector = mBoxShape->GetRotation();
 	 //mBoxShape->SetRotation(::XMVectorSet(t,0.0f,0.0f,0.0f));
 	// mBoxShape->Update(mWindow.GetGFX());
 	 
 
-	 mBoundingBox->Update(mWindow.GetGFX());
+	/* mBoundingBox->Update(mWindow.GetGFX());
 	
 	 for (auto box : mBoxes)
 	 {
 		 box->Update(mWindow.GetGFX());
-	 }
+	 }*/
 
 	 for (auto& terrain : mTerrainList)
 	 {
-		terrain->Update(mWindow.GetGFX());
+		terrain.second->Update(mWindow.GetGFX());
 	 }
 	 
 	 //mBoxShape->SetRotation(oldRotationVector);
@@ -757,67 +757,68 @@ int App::Excute()
 {
 	 mWindow.GetGFX().ClearBuffer(1.0f, 1.0f, 1.0f, 1.0f);
 	  mWindow.GetGFX().GetDeviceContext()->OMSetDepthStencilState(mStencilState1.Get(), 1u);
+
 	 
 	 mCamera->Render(mWindow.GetGFX());
 
 	// mBoxShape->Render(mWindow.GetGFX());
-	 mBoundingBox->Render(mWindow.GetGFX());
+	// mBoundingBox->Render(mWindow.GetGFX());
 
 	 for (auto& terrain : mTerrainList)
 	 {
-		 terrain->Render(mWindow.GetGFX());
+		 terrain.second->Render(mWindow.GetGFX());
 	 }
 
-	 for (auto& box : mBoxes)
+	 /*for (auto& box : mBoxes)
 	 {
 		 if (mCamera->GetFrustum().InspectOBBAndPlane(box.get()->GetBoundingBox().GetBoundingBoxData()) == mydx::eCollisionResult::Back)
 			 continue;
 		 box->Render(mWindow.GetGFX());
-	 }
+	 }*/
 
-	 UINT number = 1u;
-	mWindow.GetGFX().GetDeviceContext()->RSGetViewports(&number, &mViewPort[0]);
+	// UINT number = 1u;
+	//mWindow.GetGFX().GetDeviceContext()->RSGetViewports(&number, &mViewPort[0]);
 
-	mWindow.GetGFX().GetDeviceContext()->RSSetViewports(1, &mViewPort[1]);
-	::XMMATRIX oldViewMatrix = mWindow.GetGFX().GetViewMatrix();
-	//미니맵에 다시 그리기, 같은 랜더타겟 뷰 사용중이므로 주의
-	mWindow.GetGFX().SetViewMatrix(mTopViewCamera->GetViewMatrix());
-	mCamera->SetViewMatrix(mTopViewCamera->GetViewMatrix());
-	mCamera->Update(mWindow.GetGFX());
-	mCamera->Render(mWindow.GetGFX());
-	/*if (mCamera->GetFrustum().InspectionPoint(mBoxShape->GetTranslation()))
-	{
-		mBoxShape->Update(mWindow.GetGFX());
-		mBoxShape->Render(mWindow.GetGFX());
-	}*/
-	
-	for (auto& box : mBoxes)
-	{
-		if ( mCamera->GetFrustum().InspectOBBAndPlane(box.get()->GetBoundingBox().GetBoundingBoxData()) == mydx::eCollisionResult::Back)
-			continue;
+	//mWindow.GetGFX().GetDeviceContext()->RSSetViewports(1, &mViewPort[1]);
+	//::XMMATRIX oldViewMatrix = mWindow.GetGFX().GetViewMatrix();
+	////미니맵에 다시 그리기, 같은 랜더타겟 뷰 사용중이므로 주의
+	//mWindow.GetGFX().SetViewMatrix(mTopViewCamera->GetViewMatrix());
+	//mCamera->SetViewMatrix(mTopViewCamera->GetViewMatrix());
+	//mCamera->Update(mWindow.GetGFX());
+	//mCamera->Render(mWindow.GetGFX());
+	///*if (mCamera->GetFrustum().InspectionPoint(mBoxShape->GetTranslation()))
+	//{
+	//	mBoxShape->Update(mWindow.GetGFX());
+	//	mBoxShape->Render(mWindow.GetGFX());
+	//}*/
+	//
+	//for (auto& box : mBoxes)
+	//{
+	//	if ( mCamera->GetFrustum().InspectOBBAndPlane(box.get()->GetBoundingBox().GetBoundingBoxData()) == mydx::eCollisionResult::Back)
+	//		continue;
 
-		box->Update(mWindow.GetGFX());
-		box->Render(mWindow.GetGFX());
-	}
+	//	box->Update(mWindow.GetGFX());
+	//	box->Render(mWindow.GetGFX());
+	//}
 
-	
-	mMap->Update(mWindow.GetGFX());
-	mMap->Render(mWindow.GetGFX());
-	
-	//mHeightMap->Update(mWindow.GetGFX());
-	//mHeightMap->Render(mWindow.GetGFX());
-	mCamera->SetViewMatrix(oldViewMatrix);
-	
-	//mBoundingBox->Update(mWindow.GetGFX());
-	//mBoundingBox->Render(mWindow.GetGFX());
-	//뷰포트, 카메라 초기화
-	mWindow.GetGFX().SetViewMatrix(oldViewMatrix);
-	mWindow.GetGFX().GetDeviceContext()->RSSetViewports(1, &mViewPort[0]);
+	//
+	//mMap->Update(mWindow.GetGFX());
+	//mMap->Render(mWindow.GetGFX());
+	//
+	////mHeightMap->Update(mWindow.GetGFX());
+	////mHeightMap->Render(mWindow.GetGFX());
+	//mCamera->SetViewMatrix(oldViewMatrix);
+	//
+	////mBoundingBox->Update(mWindow.GetGFX());
+	////mBoundingBox->Render(mWindow.GetGFX());
+	////뷰포트, 카메라 초기화
+	//mWindow.GetGFX().SetViewMatrix(oldViewMatrix);
+	//mWindow.GetGFX().GetDeviceContext()->RSSetViewports(1, &mViewPort[0]);
 
-	mWindow.GetGFX().GetDeviceContext()->RSSetState(mRasterizerStateWireFrame.Get());
-	mMap->Update(mWindow.GetGFX());
-	mMap->Render(mWindow.GetGFX());
-	mWindow.GetGFX().GetDeviceContext()->RSSetState(mRasterizerStateSolid.Get());
+	//mWindow.GetGFX().GetDeviceContext()->RSSetState(mRasterizerStateWireFrame.Get());
+	//mMap->Update(mWindow.GetGFX());
+	//mMap->Render(mWindow.GetGFX());
+	//mWindow.GetGFX().GetDeviceContext()->RSSetState(mRasterizerStateSolid.Get());
 	/*mHeightMap->Update(mWindow.GetGFX());
 	mHeightMap->Render(mWindow.GetGFX());*/
 
@@ -826,7 +827,7 @@ int App::Excute()
 	/*mWindow.GetGFX().GetDeviceContext()->RSSetState(mRasterizerStateWireFrame.Get());
 	mWindow.GetGFX().GetDeviceContext()->RSSetState(mRasterizerStateSolid.Get());*/
 
-	mUi->Render();
+	 mUi->Render();
 
 	mWindow.GetGFX().EndFrame();
 	 return false;
@@ -838,7 +839,15 @@ int App::Excute()
 
  void App::AddTerrain(std::shared_ptr<mydx::Map>& map) noexcept
  {
-	mTerrainList.emplace_back(map);
+	
+	
+	 std::stringstream numbering;
+	 numbering <<"Terrain"<< mTerrainList.size() + 1;
+	 numbering.str();
+	
+
+
+	 mTerrainList.insert({ numbering.str() ,map});
  }
 
  bool App::BuildTerrain(mydx::MapDesc& mapDesc, std::shared_ptr<Texture> material, std::shared_ptr<Texture> heightMap)
@@ -849,4 +858,9 @@ int App::Excute()
 		AddTerrain(map);
 
 	 return false;
+ }
+
+ std::unordered_map<std::string, std::shared_ptr<mydx::Map>>& App::GetTerrainList() noexcept
+ {
+	return mTerrainList;
  }

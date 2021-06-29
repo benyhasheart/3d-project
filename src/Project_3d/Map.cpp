@@ -16,6 +16,7 @@ mydx::Map::Map(Graphics& graphics, MapDesc& mapDesc, const TCHAR* textureFileNam
     mMapDesc({ 0 })
 {
     mMapDesc = mapDesc;
+    mTransform = ::XMMatrixTranslationFromVector(mMapDesc.position);
     CreateMap(mapDesc);
 
   /*  if (textureFileName == nullptr)
@@ -56,79 +57,9 @@ mydx::Map::Map(Graphics& graphics, MapDesc& mapDesc, const TCHAR* textureFileNam
 
 void mydx::Map::CreateMap(MapDesc& mapDesc)
 {
-    createVertices(mapDesc.ColCellCount, mapDesc.RowCellCount, mapDesc.CellDistance);
+    createVertices(mapDesc.ColCellCount, mapDesc.RowCellCount, mapDesc.scale);
     createIndices(mapDesc.ColCellCount, mapDesc.RowCellCount);
-    //UINT rowCount = mapDesc.RowCellCount + 1;
-    //UINT colCount = mapDesc.ColCellCount + 1;
-    //UINT cellCount = rowCount * colCount;
-    //// center를 0,0,0 으로 하기 위해
-    //float halfRowCellCount = mapDesc.RowCellCount / 2.0f;
-    //float halfColCellCount = mapDesc.ColCellCount / 2.0f;
-
-    //mVertexData.reserve(cellCount);
-
-    //for (UINT rowIndex = 0; rowIndex < rowCount; rowIndex++)
-    //{
-    //    for (UINT colIndex = 0; colIndex < colCount; colIndex++)
-    //    {
-    //        VertexData vertex = {};
-
-    //        vertex.position.x = (colIndex - halfColCellCount)  * mapDesc.CellDistance;
-    //        vertex.position.y = 0.0f;
-    //        vertex.position.z = - ((rowIndex - halfRowCellCount) * mapDesc.CellDistance);
-    //        vertex.position.w = 1.0f;
-
-    //        vertex.normal = {0.0f, 1.0f, 0.0f, 0.0f};
-    //        vertex.color = {1.0f, 0.0f, 0.0f, 1.0f};
-
-    //        vertex.textureCoordinate.x =  colIndex * (1.0f / colCount);
-    //        vertex.textureCoordinate.y =  rowIndex * (1.0f / rowCount);
-
-    //        mVertexData.emplace_back(vertex);
-    //    }
-    //}
-
-    //// cell = 2 face, 1 face = 3 index;
-    //const UINT face = 2;
-    //const UINT index = 3;
-    //const UINT indexCount = mapDesc.RowCellCount * mapDesc.ColCellCount * face * index;
-
-    //mIndices.resize(indexCount);
-
-    //UINT currentIndex = 0;
-    //UINT currentVertexIndex = 0;
-    //UINT nextVertexIndex = 0;
-    //UINT nextRowVertexIndex = 0;
-    //UINT rowVertexCount = mapDesc.RowCellCount + 1;
-    //UINT colVertexCount = mapDesc.ColCellCount + 1;
-
-    //rowCount = mapDesc.RowCellCount;
-    //colCount = mapDesc.ColCellCount;
-
-    //for (UINT rowIndex = 0; rowIndex < colCount; rowIndex++)
-    //{
-    //    for (UINT colIndex = 0; colIndex < colCount; colIndex++)
-    //    {
-    //        currentVertexIndex = colVertexCount * rowIndex + colIndex;
-    //        nextVertexIndex = currentVertexIndex + 1;
-    //        nextRowVertexIndex = colVertexCount * (rowIndex + 1) + colIndex;
-
-    //        // 0 1 2 3 4 5
-    //        // 6 7 8 9 10 11
-    //        // 016, 176 ...
-    //        mIndices[currentIndex ] = currentVertexIndex;
-    //        mIndices[currentIndex + 1 ] = nextVertexIndex;
-    //        mIndices[currentIndex + 2 ] = nextRowVertexIndex;
-
-    //        mIndices[currentIndex + 3 ] = nextVertexIndex;
-    //        mIndices[currentIndex + 4 ] = nextRowVertexIndex + 1;
-    //        mIndices[currentIndex + 5 ] = nextRowVertexIndex;
-    //        // start index 0,6, 12, 18...
-    //        currentIndex += face * index;
-    //    }
-
-    //}
-    // int a = 1;
+   
 }
 
 void mydx::Map::UpdateIndexBuffer(Graphics& graphics, std::vector<DWORD>& indicesTable) noexcept
@@ -155,9 +86,14 @@ bool mydx::Map::PreRender(Graphics& graphics) noexcept
 
 bool mydx::Map::Render(Graphics& graphics) noexcept
 {
+    if (mSamplerState != nullptr)
+        graphics.GetDeviceContext()->PSSetSamplers(0u, 1u, mSamplerState.GetAddressOf());
+
     PreRender(graphics);
     Draw(graphics);
     PostRender(graphics);
+
+    graphics.GetDeviceContext()->PSSetSamplers(0u, 0u, nullptr);
     return false;
 }
 
@@ -196,7 +132,7 @@ std::shared_ptr<IndexBuffer>& mydx::Map::GetIndexBuffer() noexcept
     return mIndexBuffer;
 }
 
-void mydx::Map::createVertices(UINT width, UINT height, UINT cellDistance)
+void mydx::Map::createVertices(UINT width, UINT height, DirectX::XMVECTOR scale)noexcept
 {
     UINT rowCount = height + 1;
     UINT colCount = width + 1;
@@ -213,16 +149,19 @@ void mydx::Map::createVertices(UINT width, UINT height, UINT cellDistance)
         {
             VertexData vertex = {};
 
-            vertex.position.x = (colIndex - halfColCellCount) * cellDistance;
+            vertex.position.x = (colIndex - halfColCellCount) * ::XMVectorGetX(scale);
             vertex.position.y = 0.0f;
-            vertex.position.z = -((rowIndex - halfRowCellCount) * cellDistance);
+            vertex.position.z = -((rowIndex - halfRowCellCount) * ::XMVectorGetZ(scale));
             vertex.position.w = 1.0f;
 
             vertex.normal = { 0.0f, 0.0f, 0.0f, 0.0f };
-            vertex.color = { 1.0f, 0.0f, 0.0f, 1.0f };
+            vertex.color = { 0.0f, 0.0f, 0.0f, 1.0f };
 
             vertex.textureCoordinate.x = colIndex * (1.0f / colCount);
             vertex.textureCoordinate.y = rowIndex * (1.0f / rowCount);
+            //samplerState use D3D11_TEXTURE_ADDRESS_WRAP 
+            vertex.textureCoordinate.x = colIndex * 1.0f ;
+            vertex.textureCoordinate.y = rowIndex * 1.0f ;
 
             mVertexData.emplace_back(vertex);
         }
@@ -359,6 +298,27 @@ void mydx::Map::updateVertexNormal()
         }
         averageNormal = ::XMVector3Normalize(averageNormal);
         ::XMStoreFloat4(&mVertexData[vertexIndex].normal, averageNormal);
+    }
+}
+
+void mydx::Map::sortTextureCoordOfTileType()
+{
+    if ( mIndices.size() <=0)
+        return;
+
+    for (UINT indicesIndex = 0; indicesIndex < 6; )
+    {
+        // 0 1 2 3 4 5 6...
+        // 9 10 11 12...
+        // order -> 0,1,9 / 1,10,9
+
+        mVertexData[mIndices[indicesIndex + 0]].textureCoordinate = ::XMFLOAT4(0.0, 0.0, 0.0, 0.0);
+        mVertexData[mIndices[indicesIndex + 1]].textureCoordinate = ::XMFLOAT4(1.0, 0.0, 0.0, 0.0);
+        mVertexData[mIndices[indicesIndex + 2]].textureCoordinate = ::XMFLOAT4(0.0, 1.0, 0.0, 0.0);
+        mVertexData[mIndices[indicesIndex + 3]].textureCoordinate = ::XMFLOAT4(1.0, 0.0, 0.0, 0.0);
+        mVertexData[mIndices[indicesIndex + 4]].textureCoordinate = ::XMFLOAT4(1.0, 1.0, 0.0, 0.0);
+        mVertexData[mIndices[indicesIndex + 5]].textureCoordinate = ::XMFLOAT4(0.0, 1.0, 0.0, 0.0);
+        break;
     }
 }
 

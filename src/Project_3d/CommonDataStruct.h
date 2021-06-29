@@ -27,6 +27,7 @@ namespace mydx
 	{
 		unsigned int RowCellCount;
 		unsigned int ColCellCount;
-		float CellDistance;
+		DirectX::XMVECTOR position;
+		DirectX::XMVECTOR scale;
 	};
 }

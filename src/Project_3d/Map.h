@@ -36,12 +36,14 @@ namespace mydx
 		std::shared_ptr<VertexBuffer<mydx::VertexData>>& GetVertexBuffer() noexcept;
 		std::shared_ptr<IndexBuffer>& GetIndexBuffer() noexcept;
 	protected:
-		void createVertices(UINT width, UINT height, UINT cellDistance);
+		virtual void createVertices(UINT width, UINT height, DirectX::XMVECTOR scale) noexcept;
 		void createIndices(UINT width, UINT height);
 		void createFaceNormal(UINT width, UINT height);
 		void createVertexNoramlLookupTable();
 		void updateVertexNormal();
+		void sortTextureCoordOfTileType();
 		DirectX::XMVECTOR computeFaceNormal(DirectX::XMVECTOR vertex0, DirectX::XMVECTOR vertex1, DirectX::XMVECTOR vertex2);
+
 
 	protected:
 		std::shared_ptr<VertexBuffer<VertexData>> mVertexBuffer;
@@ -52,9 +54,10 @@ namespace mydx
 		std::vector<int> mVertexNormalLookupTabel;
 		MapDesc mMapDesc;
 
-
-		
 		DirectX::XMMATRIX mTransform;
+
+		Microsoft::WRL::ComPtr<ID3D11SamplerState> mSamplerState;
+		D3D11_SAMPLER_DESC mSamplerDesc;
 	};
 }
 
