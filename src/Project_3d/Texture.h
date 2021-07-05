@@ -1,5 +1,7 @@
 #pragma once
 #include <tchar.h>
+#include <string>
+
 #include "Bindable.h"
 
 class Texture : public Bindable
@@ -22,7 +24,9 @@ public:
 	const D3D11_TEXTURE2D_DESC& GetTextureDesc() noexcept;
 	const ID3D11ShaderResourceView* GetShaderResourceView() noexcept;
 	const D3D11_SHADER_RESOURCE_VIEW_DESC& GetShaderResourceViewDesc() noexcept;
+	std::string& GetTextureName() noexcept;
 private:
+	std::string	mTextureName;
 	Microsoft::WRL::ComPtr<ID3D11Texture2D> mTexture2D;
 	D3D11_TEXTURE2D_DESC mTexture2dDesc;
 	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> mShaderResourceView;

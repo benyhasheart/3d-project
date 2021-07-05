@@ -6,7 +6,9 @@ using namespace DirectX;
 mydx::Map::Map()
     :   
     mTransform(DirectX::XMMatrixIdentity()),
-    mMapDesc({0})
+    mMapDesc({0}),
+    mSamplerDesc({}),
+    mCamera(nullptr)
 {
 }
 
@@ -66,6 +68,7 @@ void mydx::Map::UpdateIndexBuffer(Graphics& graphics, std::vector<DWORD>& indice
 {
     mIndexBuffer->UpdateIndices(graphics, indicesTable);
 }
+
 
 bool mydx::Map::Initialize(Graphics& graphics) noexcept
 {
@@ -130,6 +133,11 @@ std::shared_ptr<VertexBuffer<mydx::VertexData>>& mydx::Map::GetVertexBuffer() no
 std::shared_ptr<IndexBuffer>& mydx::Map::GetIndexBuffer() noexcept
 {
     return mIndexBuffer;
+}
+
+void mydx::Map::SetCamera(std::shared_ptr<Camera> camera) noexcept
+{
+    mCamera = camera;
 }
 
 void mydx::Map::createVertices(UINT width, UINT height, DirectX::XMVECTOR scale)noexcept

@@ -28,10 +28,8 @@ mydx::UI::~UI()
     ImGui_ImplWin32_Shutdown();
     ImGui::DestroyContext();
 }
-void testfunc()
-{
 
-}
+
 bool mydx::UI::Initialize() noexcept
 {
     mCurrentTerrainEditorUi = &UI::buildTerrainUI;
@@ -44,7 +42,7 @@ bool mydx::UI::Update() noexcept
     ImGui_ImplDX11_NewFrame();
     ImGui_ImplWin32_NewFrame();
     ImGui::NewFrame();
-
+    //Terrain Editor
     bool isOpen = true;
     ImGui::SetNextWindowPos( ImVec2(0.0f,0.0f));
     ImGui::Begin("Terrain Editor", &isOpen);
@@ -53,7 +51,7 @@ bool mydx::UI::Update() noexcept
     //ImGui::SetWindowSize(ImVec2(200.0f, YonWindow::windowHeight));
 
     ImGui::End();
-
+    //Mode Tollbar
     ImGui::SetNextWindowPos(ImVec2(nextUiPosX, 0.0f));
     ImGui::Begin("Mode Tollbar", &isOpen);
     ImGuiTabBarFlags tab_bar_flags = ImGuiTabBarFlags_None;
@@ -65,9 +63,17 @@ bool mydx::UI::Update() noexcept
             ImGui::Button("  New \n"
                             "Terrain", ImVec2(64.0f,32.0f));
             ImGui::SameLine();
-            ImGui::Button("Save", ImVec2(64.0f, 32.0f));
+            if (ImGui::Button("Save", ImVec2(64.0f, 32.0f)))
+            {
+                saveTerrain();
+            }
+            
             ImGui::SameLine();
-            ImGui::Button("Load", ImVec2(64.0f, 32.0f));
+            if (ImGui::Button("Load", ImVec2(64.0f, 32.0f)))
+            {
+                loadTerrain();
+            }
+
             ImGui::EndTabItem();
         }
         if (ImGui::BeginTabItem("Sculpting"))
@@ -87,9 +93,10 @@ bool mydx::UI::Update() noexcept
     
     ImGui::End();
 
-   
+    //World Actor
     ImGui::SetNextWindowPos(ImVec2(YonWindow::windowWidth - ImGui::GetWindowWidth(), 0));
     ImGui::Begin("World Actor", &isOpen);
+
     auto& terrainIter = mOwnerApp->GetTerrainList();
     static std::vector<std::string> terrainList;
     if (terrainList.size() != terrainIter.size())
@@ -103,6 +110,7 @@ bool mydx::UI::Update() noexcept
     }
     
     static int item_current_idx = 0;
+    static int item_before_idx = 0;
     ImGui::Text("Actor List");
     if (ImGui::BeginListBox("##Actor List"))
     {
@@ -110,14 +118,37 @@ bool mydx::UI::Update() noexcept
         {
             const bool is_selected = (item_current_idx == n);
             if (ImGui::Selectable(terrainList[n].c_str(), is_selected))
+            {
+                item_before_idx = item_current_idx;
                 item_current_idx = n;
+            }
+
 
             // Set the initial focus when opening the combo (scrolling + keyboard navigation focus)
             if (is_selected)
+            {
                 ImGui::SetItemDefaultFocus();
+                mSelectTerrainName = terrainList[item_current_idx];
+            }
+                
         }
+
+        if (item_before_idx != item_current_idx)
+        {
+            mSelectTerrainName = terrainList[item_current_idx];
+            mOwnerApp->SelectTerrainActor(mSelectTerrainName);
+        }
+            
         ImGui::EndListBox();
     }
+    ImGui::Separator();
+    
+    if ( ImGui::Button("Delete") )
+    {
+        mSelectTerrainName = terrainList[item_current_idx];
+        mOwnerApp->RemoveTerrain(mSelectTerrainName);
+    }
+
     ImGui::End();
     return false;
 }
@@ -137,4 +168,28 @@ bool mydx::UI::Release() noexcept
 void mydx::UI::SetOwenrApp(App* app) noexcept
 {
     mOwnerApp = app;
+}
+
+std::wstring mydx::UI::FileOpenDialog()
+{
+    OPENFILENAME ofn;       // common dialog box structure
+    TCHAR szFile[260] = { 0 };       // if using TCHAR macros
+    // Initialize OPENFILENAME
+    ZeroMemory(&ofn, sizeof(ofn));
+    ofn.lStructSize = sizeof(ofn);
+    ofn.hwndOwner = g_hwnd;
+    ofn.lpstrFile = szFile;
+    ofn.nMaxFile = sizeof(szFile);
+    ofn.lpstrFilter = _T("All\0*.*\0Text\0*.TXT\0");
+    ofn.nFilterIndex = 1;
+    ofn.lpstrFileTitle = NULL;
+    ofn.nMaxFileTitle = 0;
+    ofn.lpstrInitialDir = _T("..\..\data\map");
+    ofn.Flags = OFN_PATHMUSTEXIST | OFN_FILEMUSTEXIST;
+
+    if (GetOpenFileName(&ofn) == TRUE)
+    {
+        return std::wstring(szFile);;
+    }
+    return std::wstring();
 }

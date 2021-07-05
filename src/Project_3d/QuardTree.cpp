@@ -283,7 +283,22 @@ bool mydx::QuardTree::computeSelectedNode(Node* node, DirectX::XMVECTOR start, D
 	}
 
 	// 1 cell = 2face 2 페이스 모두 체크 해 봐야한다.
-	if (mSelect->CheckInterSection(start, end, edge0, edge1, edge2))
+	/*if (mSelect->CheckInterSection(start, end, edge0, edge1, edge2))
+	{
+
+		for (auto& childNode : node->GetChildNodeTable())
+		{
+			if (computeSelectedNode(childNode.get(), start, end))
+			{
+				return true;
+			}
+		}
+
+	}*/
+
+	if ( mSelect->CheckInterSection(start, end, edge1, edge2, edge0) 
+			||
+		mSelect->CheckInterSection(start, end, edge1, edge3, edge2) )
 	{
 
 		for (auto& childNode : node->GetChildNodeTable())

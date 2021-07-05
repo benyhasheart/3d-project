@@ -1,5 +1,7 @@
 #pragma once
 #include <DirectXMath.h>
+#include <string>
+#include <vector>
 
 namespace mydx
 {
@@ -29,5 +31,15 @@ namespace mydx
 		unsigned int ColCellCount;
 		DirectX::XMVECTOR position;
 		DirectX::XMVECTOR scale;
+	};
+
+	struct TerrainInfo
+	{
+		std::string name;
+		std::string textureName;
+		std::string heightMapName;
+		MapDesc mapDesc;
+		std::vector<VertexData> vertexTable ;
+		std::vector<unsigned long>	indexTable ;
 	};
 }

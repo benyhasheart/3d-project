@@ -125,7 +125,10 @@ bool mydx::Frustum::InspectionPoint(DirectX::XMVECTOR point) noexcept
     {
         // ax + by + cz + d = 0
         //평면의 노말 방향과 같은 방향에 존재한다면 길이는 양수, 다르면 음수
-        const float distance = plane.x * convertPoint.x + plane.y * convertPoint.y + plane.z * convertPoint.z + plane.w;
+        const float distance = 
+            plane.x * convertPoint.x + 
+            plane.y * convertPoint.y + 
+            plane.z * convertPoint.z + plane.w;
 
         if ( distance < 0.0f)
             return false;
@@ -142,7 +145,10 @@ bool mydx::Frustum::InspectionSphere(DirectX::XMVECTOR point, float radius) noex
     {
         // ax + by + cz + d = 0
         //평면의 노말 방향과 같은 방향에 존재한다면 길이는 양수, 다르면 음수
-        const float distance = plane.x * convertPoint.x + plane.y * convertPoint.y + plane.z * convertPoint.z + plane.w;
+        const float distance = 
+            plane.x * convertPoint.x + 
+            plane.y * convertPoint.y + 
+            plane.z * convertPoint.z + plane.w;
 
         if (distance <= -radius)
             return false;

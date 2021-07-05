@@ -6,7 +6,24 @@ mydx::Terrain::Terrain(Graphics& graphics, MapDesc& mapDesc, std::shared_ptr<Tex
 	mMaterial(nullptr),
 	mHeightMapTexture(nullptr)
 {
+	mMaterial = material;
+	mHeightMapTexture = heightMap;
+	mMapDesc = mapDesc;
 
+}
+
+mydx::Node* mydx::Terrain::FindSelectedNode(Node* node, Select* selectClass) noexcept
+{
+	return mQuardTree->FindSelectedNode(node, selectClass);
+}
+
+int mydx::Terrain::UpdateIndexTable(DWORD currentIndex, DWORD topLeft, DWORD topRight, DWORD bottomLeft, DWORD bottomRight, std::vector<DWORD>& indexTable) noexcept
+{
+	return mQuardTree->UpdateIndexTable(currentIndex, topLeft, topRight, bottomLeft, bottomRight, indexTable);
+}
+
+bool mydx::Terrain::Initialize(Graphics& graphics) noexcept
+{
 	auto mVertexShaderClass = std::make_shared<VertexShader>(graphics, L"\CustomMap.hlsl", "vertexShaderMain");
 	auto bytecodeBlob = mVertexShaderClass->GetBytecodeBlob();
 
@@ -30,20 +47,18 @@ mydx::Terrain::Terrain(Graphics& graphics, MapDesc& mapDesc, std::shared_ptr<Tex
 
 	AddBind(std::make_shared<TransformConstantBuffer>(graphics, *this));
 
-	mMaterial = material;
 
 	if (mMaterial != nullptr)
 		AddBind(mMaterial);
 
-	mHeightMapTexture = heightMap;
-	mMapDesc = mapDesc;
+	
 	mTransform = ::XMMatrixTranslationFromVector(mMapDesc.position);
 
 	if (mHeightMapTexture != nullptr)
 	{
-		createVertexUsingHeightMap(	graphics,
-									mMapDesc,
-									mVertexData, mHeightMapTexture.get());
+		createVertexUsingHeightMap(graphics,
+			mMapDesc,
+			mVertexData, mHeightMapTexture.get());
 		createIndices(mMapDesc.ColCellCount, mMapDesc.RowCellCount);
 	}
 	else
@@ -51,7 +66,7 @@ mydx::Terrain::Terrain(Graphics& graphics, MapDesc& mapDesc, std::shared_ptr<Tex
 		createVertices(mMapDesc.ColCellCount, mMapDesc.RowCellCount, mMapDesc.scale);
 		createIndices(mMapDesc.ColCellCount, mMapDesc.RowCellCount);
 	}
-	
+
 	// 
 	sortTextureCoordOfTileType();
 	createFaceNormal(mMapDesc.ColCellCount, mMapDesc.RowCellCount);
@@ -64,6 +79,11 @@ mydx::Terrain::Terrain(Graphics& graphics, MapDesc& mapDesc, std::shared_ptr<Tex
 	mIndexBuffer = std::make_shared<IndexBuffer>(graphics, mIndices);
 	AddIndexBuffer(mIndexBuffer);
 
+	mQuardTree = std::make_shared<mydx::QuardTreeVertexIndex>();
+	mQuardTree->SetCamera(mCamera.get());
+	mQuardTree->SetMap(this);
+	mQuardTree->Build(this, mMapDesc.ColCellCount, mMapDesc.RowCellCount);
+
 
 	mSamplerDesc = {};
 	mSamplerDesc.AddressU = static_cast<D3D11_TEXTURE_ADDRESS_MODE>(1);
@@ -72,7 +92,29 @@ mydx::Terrain::Terrain(Graphics& graphics, MapDesc& mapDesc, std::shared_ptr<Tex
 	mSamplerDesc.Filter = D3D11_FILTER_MIN_MAG_MIP_LINEAR;
 
 	graphics.GetDevice()->CreateSamplerState(&mSamplerDesc, mSamplerState.GetAddressOf());
+	return false;
+}
 
+bool mydx::Terrain::Update(Graphics& graphics) noexcept
+{
+	// 쿼드트리에서 프로스텀 컬링 후 버퍼 업데이트
+	/*mQuardTree->Update(graphics);
+	UpdateIndexBuffer(graphics, mQuardTree->GetUpdateIndexTable());*/
+
+	Map::Update(graphics);
+
+	
+	return false;
+}
+
+std::shared_ptr<Texture>& mydx::Terrain::GetMaterial() noexcept
+{
+	return mMaterial;
+}
+
+std::shared_ptr<Texture>& mydx::Terrain::GetHeightMap() noexcept
+{
+	return mHeightMapTexture;
 }
 
 void mydx::Terrain::createVertices(UINT width, UINT height, DirectX::XMVECTOR scale) noexcept

@@ -10,6 +10,9 @@ mydx::QuardTreeVertexIndex::QuardTreeVertexIndex()
 
 bool mydx::QuardTreeVertexIndex::Build(Map* map, DWORD width, DWORD height) noexcept
 {
+    if ( width * height < 4)
+        return false;
+
     mWidth = width ;
     mHeight = height ;
     mFaceCount = mWidth * mHeight  * 2 ;
@@ -165,7 +168,7 @@ void	mydx::QuardTreeVertexIndex::ComputeBoungigBox(Node*  node) noexcept
     boundingboxData.Axis[1] = ::XMVectorSet(0.0f, 1.0f, 0.0f, 0.0f);
     boundingboxData.Axis[2] = ::XMVectorSet(0.0f, 0.0f, 1.0f, 0.0f);
     boundingboxData.Extent[0] = ::XMVectorSet(::XMVectorGetX(boundingboxData.Max) - ::XMVectorGetX(boundingboxData.Center), 0.0f, 0.0f, 0.0f);
-    boundingboxData.Extent[1] = ::XMVectorSet(0.0f, 0.0f, 0.0f, 0.0f);
+    boundingboxData.Extent[1] = ::XMVectorSet(0.0f, ::XMVectorGetY(boundingboxData.Max) - ::XMVectorGetY(boundingboxData.Center), 0.0f, 0.0f);
     boundingboxData.Extent[2] = ::XMVectorSet(0.0f, 0.0f, ::XMVectorGetZ(boundingboxData.Max) - ::XMVectorGetZ(boundingboxData.Center), 0.0f);
     node->SetBoundingBox(boundingboxData);
 }

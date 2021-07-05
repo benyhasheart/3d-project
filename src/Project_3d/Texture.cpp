@@ -19,6 +19,9 @@ Texture::Texture(Graphics& graphics, const TCHAR* fileName)
 	mTexture2D->GetDesc(&mTexture2dDesc);
 
 	mShaderResourceView->GetDesc(&mShaderResourceViewDesc);
+
+	std::wstring texturename = std::wstring(fileName);
+	mTextureName.assign(texturename.begin(), texturename.end());
 }
 
 Texture::Texture(Graphics& graphics, const TCHAR* fileName, const D3D11_USAGE usage)
@@ -47,6 +50,9 @@ Texture::Texture(Graphics& graphics, const TCHAR* fileName, const D3D11_USAGE us
 	mTexture2D->GetDesc(&mTexture2dDesc);
 
 	mShaderResourceView->GetDesc(&mShaderResourceViewDesc);
+
+	std::wstring texturename = std::wstring(fileName);
+	mTextureName.assign(texturename.begin(), texturename.end());
 }
 
 void Texture::Bind(Graphics& graphics) noexcept
@@ -72,4 +78,9 @@ const ID3D11ShaderResourceView* Texture::GetShaderResourceView() noexcept
 const D3D11_SHADER_RESOURCE_VIEW_DESC& Texture::GetShaderResourceViewDesc() noexcept
 {
 	return mShaderResourceViewDesc;
+}
+
+std::string& Texture::GetTextureName() noexcept
+{
+	return mTextureName;
 }

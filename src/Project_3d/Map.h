@@ -2,8 +2,8 @@
 #include <tchar.h>
 
 #include "CommonDataStruct.h"
-#include "Drawable.h"
 #include "BindableBase.h"
+#include "Camera.h"
 
 namespace mydx
 {
@@ -20,8 +20,8 @@ namespace mydx
 		void CreateMap(MapDesc& mapDesc);
 		void UpdateIndexBuffer(Graphics& graphics, std::vector<DWORD>& indicesTable) noexcept;
 	public:
-		bool Initialize(Graphics& graphics) noexcept override final;
-		bool Update(Graphics& graphics) noexcept override final;
+		bool Initialize(Graphics& graphics) noexcept override; 
+		bool Update(Graphics& graphics) noexcept override;
 		bool PreRender(Graphics& graphics) noexcept override final;
 		bool Render(Graphics& graphics) noexcept override final;
 		bool PostRender(Graphics& graphics) noexcept override final;
@@ -35,6 +35,8 @@ namespace mydx
 
 		std::shared_ptr<VertexBuffer<mydx::VertexData>>& GetVertexBuffer() noexcept;
 		std::shared_ptr<IndexBuffer>& GetIndexBuffer() noexcept;
+
+		void SetCamera(std::shared_ptr<Camera> camera) noexcept;
 	protected:
 		virtual void createVertices(UINT width, UINT height, DirectX::XMVECTOR scale) noexcept;
 		void createIndices(UINT width, UINT height);
@@ -58,6 +60,8 @@ namespace mydx
 
 		Microsoft::WRL::ComPtr<ID3D11SamplerState> mSamplerState;
 		D3D11_SAMPLER_DESC mSamplerDesc;
+
+		std::shared_ptr <Camera> mCamera;
 	};
 }
 

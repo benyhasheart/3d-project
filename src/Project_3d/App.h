@@ -25,6 +25,8 @@
 
 
 
+
+
 //constant buffer test
 struct ConstantData
 {
@@ -63,17 +65,25 @@ public:
 	int Excute();
 
 public:
+	void AddTerrain(std::shared_ptr<mydx::Terrain>& map) noexcept;
+	void RemoveTerrain(std::string& terrainName) noexcept;
+
+	std::unordered_map<std::string, std::shared_ptr<mydx::Terrain>>::iterator
+	FindTerrain(std::string& terrainName) noexcept;
+
+	void SelectTerrainActor(std::string& terrainName) noexcept;
+	bool BuildTerrain(mydx::MapDesc& mapDesc, std::shared_ptr<Texture> material = nullptr, std::shared_ptr<Texture> heightMap = nullptr);
+
+public:
+	std::unordered_map<std::string, std::shared_ptr<mydx::Terrain>>& GetTerrainList() noexcept;
+	std::shared_ptr<mydx::Terrain>& GetCurrentTerrain() noexcept;
+
+public:
 	virtual bool Initialize() override;
 	virtual bool Update() override;
 	virtual bool Render() override;
 	virtual bool Release() override;
 
-public:
-	void AddTerrain(std::shared_ptr<mydx::Map>& map) noexcept;
-	bool BuildTerrain(mydx::MapDesc& mapDesc, std::shared_ptr<Texture> material = nullptr, std::shared_ptr<Texture> heightMap = nullptr);
-
-public:
-	std::unordered_map<std::string, std::shared_ptr<mydx::Map>>& GetTerrainList() noexcept;
 // --test 
 public:
 	Microsoft::WRL::ComPtr<ID3D11Buffer> mVertexBuffer;
@@ -98,7 +108,7 @@ public:
 	std::unique_ptr<Texture> mTexture;
 
 	std::unique_ptr<Box> mBoxShape;
-	std::unique_ptr<Camera> mCamera;
+	std::shared_ptr<Camera> mCamera;
 	std::unique_ptr<Camera> mTopViewCamera;
 	std::unique_ptr<mydx::BoundingBox> mBoundingBox;
 	std::shared_ptr<mydx::Map> mMap;
@@ -127,12 +137,16 @@ public:
 
 	std::vector< std::shared_ptr<Box>> mBoxes;
 	//std::vector<std::shared_ptr<mydx::Map>> mTerrainList;
-	std::unordered_map<std::string, std::shared_ptr<mydx::Map>> mTerrainList;
+	
 	//UINT mStride;
 // --
 private:
 	YonWindow mWindow;
 	YonTimer mTimer;
+
 	std::unique_ptr<mydx::UI> mUi;
+	std::shared_ptr<mydx::Terrain> mCurrentSelectTerrain;
+
+	std::unordered_map<std::string, std::shared_ptr<mydx::Terrain>> mTerrainList;
 };
 
