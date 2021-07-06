@@ -191,14 +191,13 @@ void mydx::UI::saveTerrain() noexcept
 	save(info);
 }
 
-void mydx::UI::loadTerrain() noexcept
-{
-	mydx::TerrainInfo info;
-	load(info);
-}
+
 
 void mydx::UI::save(TerrainInfo& terrain) noexcept
 {
+	
+	std::string saveFileName = "../../save/terrain/" + terrain.name + ".json";
+	
 	rapidjson::Document document;
 	document.SetObject();
 
@@ -255,6 +254,22 @@ void mydx::UI::save(TerrainInfo& terrain) noexcept
 			vertexTable.PushBack(vertex.position.y, document.GetAllocator());
 			vertexTable.PushBack(vertex.position.z, document.GetAllocator());
 			vertexTable.PushBack(vertex.position.w, document.GetAllocator());
+
+			vertexTable.PushBack(vertex.normal.x, document.GetAllocator());
+			vertexTable.PushBack(vertex.normal.y, document.GetAllocator());
+			vertexTable.PushBack(vertex.normal.z, document.GetAllocator());
+			vertexTable.PushBack(vertex.normal.w, document.GetAllocator());
+
+			vertexTable.PushBack(vertex.color.x, document.GetAllocator());
+			vertexTable.PushBack(vertex.color.y, document.GetAllocator());
+			vertexTable.PushBack(vertex.color.z, document.GetAllocator());
+			vertexTable.PushBack(vertex.color.w, document.GetAllocator());
+
+			vertexTable.PushBack(vertex.textureCoordinate.x, document.GetAllocator());
+			vertexTable.PushBack(vertex.textureCoordinate.y, document.GetAllocator());
+			vertexTable.PushBack(vertex.textureCoordinate.z, document.GetAllocator());
+			vertexTable.PushBack(vertex.textureCoordinate.w, document.GetAllocator());
+			
 		}
 
 		o.AddMember("vertexTable", vertexTable, document.GetAllocator());
@@ -273,7 +288,7 @@ void mydx::UI::save(TerrainInfo& terrain) noexcept
 		document.AddMember("terrain", o, document.GetAllocator());
 
 		FILE* fp;
-		fopen_s(&fp,"output.json", "wb"); // non-Windows use "w"
+		fopen_s(&fp, saveFileName.c_str(), "wb"); // non-Windows use "w"
 
 		char writeBuffer[65536];
 		rapidjson::FileWriteStream os(fp, writeBuffer, sizeof(writeBuffer));
@@ -286,6 +301,14 @@ void mydx::UI::save(TerrainInfo& terrain) noexcept
 	}
 	
 	
+}
+
+void mydx::UI::loadTerrain() noexcept
+{
+	mydx::TerrainInfo info;
+	load(info);
+	mOwnerApp->BuildTerrain(info);
+
 }
 
 void mydx::UI::load(TerrainInfo& terrain) noexcept
@@ -382,23 +405,44 @@ void mydx::UI::load(TerrainInfo& terrain) noexcept
 			rapidjson::Value& vertexTable = o["vertexTable"];
 
 			assert(vertexTable.IsArray());
-
-			std::size_t size = vertexTable.Size() / 4;
+			//position, color, normal, texturecoord
+			std::size_t size = vertexTable.Size() / 16;
 			auto& table = terrain.vertexTable;
 			table.reserve(size);
 
 			DirectX::XMFLOAT4 vertex = {};
+			DirectX::XMFLOAT4 normal = {};
+			DirectX::XMFLOAT4 color = {};
+			DirectX::XMFLOAT4 texturecoord = {};
 			for (rapidjson::SizeType i = 0; i < vertexTable.Size();)
 			{
-				vertex.x = vertexTable[i].GetFloat();
+				vertex.x = vertexTable[i + 0].GetFloat();
 				vertex.y = vertexTable[i + 1].GetFloat();
 				vertex.z = vertexTable[i + 2].GetFloat();
 				vertex.w = vertexTable[i + 3].GetFloat();
 
+				normal.x = vertexTable[i + 4].GetFloat();
+				normal.y = vertexTable[i + 5].GetFloat();
+				normal.z = vertexTable[i + 6].GetFloat();
+				normal.w = vertexTable[i + 7].GetFloat();
+
+				color.x = vertexTable[i + 8].GetFloat();
+				color.y = vertexTable[i + 9].GetFloat();
+				color.z = vertexTable[i + 10].GetFloat();
+				color.w = vertexTable[i + 11].GetFloat();
+
+				texturecoord.x = vertexTable[i + 12].GetFloat();
+				texturecoord.y = vertexTable[i + 13].GetFloat();
+				texturecoord.z = vertexTable[i + 14].GetFloat();
+				texturecoord.w = vertexTable[i + 15].GetFloat();
+
 				mydx::VertexData vertexData = {};
 				vertexData.position = vertex;
+				vertexData.normal = normal;
+				vertexData.color = color;
+				vertexData.textureCoordinate = texturecoord;
 				table.emplace_back(vertexData);
-				i += 4;
+				i += 16;
 			}
 
 			//index

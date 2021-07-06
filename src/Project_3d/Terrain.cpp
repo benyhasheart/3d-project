@@ -12,6 +12,75 @@ mydx::Terrain::Terrain(Graphics& graphics, MapDesc& mapDesc, std::shared_ptr<Tex
 
 }
 
+mydx::Terrain::Terrain(Graphics& graphics, mydx::TerrainInfo& terrainInfo)
+	:
+	mMaterial(nullptr),
+	mHeightMapTexture(nullptr)
+{
+	mMapDesc = terrainInfo.mapDesc;
+
+	auto mVertexShaderClass = std::make_shared<VertexShader>(graphics, L"\CustomMap.hlsl", "vertexShaderMain");
+	auto bytecodeBlob = mVertexShaderClass->GetBytecodeBlob();
+
+	AddBind(std::move(mVertexShaderClass));
+
+
+
+	const std::vector< D3D11_INPUT_ELEMENT_DESC> layoutList =
+	{
+		{ "POSITION", 0, DXGI_FORMAT_R32G32B32A32_FLOAT, 0, 0, D3D11_INPUT_PER_VERTEX_DATA, 0},
+		{ "NORMAL", 0, DXGI_FORMAT_R32G32B32A32_FLOAT, 0, 32, D3D11_INPUT_PER_VERTEX_DATA, 0},
+		{ "COLOR", 0, DXGI_FORMAT_R32G32B32A32_FLOAT, 0, 16, D3D11_INPUT_PER_VERTEX_DATA, 0},
+		{ "TEXTURECOORD", 0, DXGI_FORMAT_R32G32B32A32_FLOAT, 0, 48, D3D11_INPUT_PER_VERTEX_DATA, 0},
+	};
+
+	AddBind(std::make_shared<InputLayout>(graphics, layoutList, bytecodeBlob));
+
+	AddBind(std::make_shared<Topology>(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST));
+
+	AddBind(std::make_shared<PixelShader>(graphics, L"\CustomMap.hlsl", "pixelShaderMain"));
+
+	AddBind(std::make_shared<TransformConstantBuffer>(graphics, *this));
+
+
+	if (!terrainInfo.textureName.empty())
+	{
+		std::wstring convertName(terrainInfo.textureName.begin(), terrainInfo.textureName.end());
+		mMaterial = std::make_shared<Texture>(graphics, convertName.c_str());
+		assert(mMaterial);
+		AddBind(mMaterial);
+	}
+
+	if (!terrainInfo.heightMapName.empty())
+	{
+		std::wstring convertName(terrainInfo.heightMapName.begin(), terrainInfo.heightMapName.end());
+		mHeightMapTexture = std::make_shared<Texture>(graphics, convertName.c_str());
+		assert(mHeightMapTexture);
+		AddBind(mHeightMapTexture);
+	}
+
+	
+	mVertexBuffer = std::make_shared<VertexBuffer<VertexData>>(graphics, terrainInfo.vertexTable);
+	AddBind(mVertexBuffer);
+
+	mIndexBuffer = std::make_shared<IndexBuffer>(graphics, terrainInfo.indexTable);
+	AddIndexBuffer(mIndexBuffer);
+
+	mQuardTree = std::make_shared<mydx::QuardTreeVertexIndex>();
+	mQuardTree->SetCamera(mCamera.get());
+	mQuardTree->SetMap(this);
+	mQuardTree->Build(this, mMapDesc.ColCellCount, mMapDesc.RowCellCount);
+
+
+	mSamplerDesc = {};
+	mSamplerDesc.AddressU = static_cast<D3D11_TEXTURE_ADDRESS_MODE>(1);
+	mSamplerDesc.AddressV = static_cast<D3D11_TEXTURE_ADDRESS_MODE>(1);
+	mSamplerDesc.AddressW = static_cast<D3D11_TEXTURE_ADDRESS_MODE>(1);
+	mSamplerDesc.Filter = D3D11_FILTER_MIN_MAG_MIP_LINEAR;
+
+	graphics.GetDevice()->CreateSamplerState(&mSamplerDesc, mSamplerState.GetAddressOf());
+}
+
 mydx::Node* mydx::Terrain::FindSelectedNode(Node* node, Select* selectClass) noexcept
 {
 	return mQuardTree->FindSelectedNode(node, selectClass);

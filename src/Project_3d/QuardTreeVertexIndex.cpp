@@ -155,8 +155,8 @@ void	mydx::QuardTreeVertexIndex::ComputeBoungigBox(Node*  node) noexcept
 {
     
     mydx::BoundingBoxData boundingboxData;
-    boundingboxData.Max = ::XMLoadFloat4(&mMap->GetVertexData()[node->GetCornerVertexIndexTable()[1]].position);
-    boundingboxData.Min = ::XMLoadFloat4(&mMap->GetVertexData()[node->GetCornerVertexIndexTable()[2]].position);
+    boundingboxData.Max = ::XMLoadFloat4(&mMap->GetVertexBuffer()->GetVertexTable()[node->GetCornerVertexIndexTable()[1]].position);
+    boundingboxData.Min = ::XMLoadFloat4(&mMap->GetVertexBuffer()->GetVertexTable()[node->GetCornerVertexIndexTable()[2]].position);
 
     ::XMMATRIX transform = ::XMMatrixIdentity();
     boundingboxData.Center = (boundingboxData.Max + boundingboxData.Min) / 2.0f;

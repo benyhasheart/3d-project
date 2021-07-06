@@ -99,14 +99,9 @@ bool mydx::UI::Update() noexcept
 
     auto& terrainIter = mOwnerApp->GetTerrainList();
     static std::vector<std::string> terrainList;
-    if (terrainList.size() != terrainIter.size())
+    if (mTerrainList.size() != terrainIter.size())
     {
-        terrainList.clear();
-        //terrainList.resize(terrainIter.size());
-        for (auto& iter : terrainIter)
-        {
-            terrainList.push_back(iter.first);
-        }
+        TerrainListUpdate();
     }
     
     static int item_current_idx = 0;
@@ -114,10 +109,10 @@ bool mydx::UI::Update() noexcept
     ImGui::Text("Actor List");
     if (ImGui::BeginListBox("##Actor List"))
     {
-        for (int n = 0; n < terrainList.size(); n++)
+        for (int n = 0; n < mTerrainList.size(); n++)
         {
             const bool is_selected = (item_current_idx == n);
-            if (ImGui::Selectable(terrainList[n].c_str(), is_selected))
+            if (ImGui::Selectable(mTerrainList[n].c_str(), is_selected))
             {
                 item_before_idx = item_current_idx;
                 item_current_idx = n;
@@ -128,16 +123,16 @@ bool mydx::UI::Update() noexcept
             if (is_selected)
             {
                 ImGui::SetItemDefaultFocus();
-                mSelectTerrainName = terrainList[item_current_idx];
+                mSelectTerrainName = mTerrainList[item_current_idx];
             }
                 
         }
 
-        if (item_before_idx != item_current_idx)
+        /*if (item_before_idx != item_current_idx)
         {
-            mSelectTerrainName = terrainList[item_current_idx];
+            mSelectTerrainName = mTerrainList[item_current_idx];
             mOwnerApp->SelectTerrainActor(mSelectTerrainName);
-        }
+        }*/
             
         ImGui::EndListBox();
     }
@@ -145,7 +140,7 @@ bool mydx::UI::Update() noexcept
     
     if ( ImGui::Button("Delete") )
     {
-        mSelectTerrainName = terrainList[item_current_idx];
+        mSelectTerrainName = mTerrainList[item_current_idx];
         mOwnerApp->RemoveTerrain(mSelectTerrainName);
     }
 
@@ -170,6 +165,22 @@ void mydx::UI::SetOwenrApp(App* app) noexcept
     mOwnerApp = app;
 }
 
+bool mydx::UI::TerrainListUpdate() noexcept
+{
+    if (mOwnerApp == nullptr)
+        return false;
+
+    auto& terrainIter = mOwnerApp->GetTerrainList();
+    mTerrainList.clear();
+
+    for (auto& iter : terrainIter)
+    {
+        mTerrainList.push_back(iter.first);
+    }
+
+    return true;
+}
+
 std::wstring mydx::UI::FileOpenDialog()
 {
     OPENFILENAME ofn;       // common dialog box structure
@@ -184,12 +195,12 @@ std::wstring mydx::UI::FileOpenDialog()
     ofn.nFilterIndex = 1;
     ofn.lpstrFileTitle = NULL;
     ofn.nMaxFileTitle = 0;
-    ofn.lpstrInitialDir = _T("..\..\data\map");
+    ofn.lpstrInitialDir = NULL;
     ofn.Flags = OFN_PATHMUSTEXIST | OFN_FILEMUSTEXIST;
 
     if (GetOpenFileName(&ofn) == TRUE)
     {
         return std::wstring(szFile);;
     }
-    return std::wstring();
+    return std::wstring(szFile);
 }

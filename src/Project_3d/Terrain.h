@@ -9,6 +9,8 @@ namespace mydx
 	{
 	public:
 		Terrain(Graphics& graphics, MapDesc& mapDesc, std::shared_ptr<Texture> material = nullptr, std::shared_ptr<Texture> heightMap = nullptr);
+		//build terrain with load data
+		Terrain(Graphics& graphics, mydx::TerrainInfo& terrainInfo);
 		virtual ~Terrain() = default;
 
 	public:

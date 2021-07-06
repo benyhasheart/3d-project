@@ -73,6 +73,7 @@ public:
 
 	void SelectTerrainActor(std::string& terrainName) noexcept;
 	bool BuildTerrain(mydx::MapDesc& mapDesc, std::shared_ptr<Texture> material = nullptr, std::shared_ptr<Texture> heightMap = nullptr);
+	bool BuildTerrain(mydx::TerrainInfo& terrainInfo);
 
 public:
 	std::unordered_map<std::string, std::shared_ptr<mydx::Terrain>>& GetTerrainList() noexcept;

@@ -24,6 +24,7 @@ namespace mydx
 		virtual ~UI() ;
  
 	public:
+		bool TerrainListUpdate() noexcept;
 		//temporory func
 		std::wstring FileOpenDialog();
 	public:
@@ -49,6 +50,8 @@ namespace mydx
 
 
 	private:
+		std::vector<std::string> mTerrainList;
+
 		std::function<void(UI*)> mCurrentTerrainEditorUi;
 
 		std::shared_ptr<Texture> mLoadedMaterial;

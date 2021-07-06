@@ -901,6 +901,20 @@ bool App::BuildTerrain(mydx::MapDesc& mapDesc, std::shared_ptr<Texture> material
 	return true;
 }
 
+bool App::BuildTerrain(mydx::TerrainInfo& terrainInfo)
+{
+	std::shared_ptr<mydx::Terrain> map = std::make_shared<mydx::Terrain>(*g_graphics, terrainInfo);
+
+	if (map == nullptr)
+		return false;
+
+	AddTerrain(map);
+	map->SetCamera(mCamera);
+	mCurrentSelectTerrain = map;
+
+	return false;
+}
+
 std::unordered_map<std::string, std::shared_ptr<mydx::Terrain>>& App::GetTerrainList() noexcept
 {
 	return mTerrainList;
